@@ -1,0 +1,87 @@
+filegroup(
+    name = "bison_data",
+    srcs = glob(["data/**/*"]),
+    visibility = ["//bin:__pkg__"],
+)
+
+cc_library(
+    name = "config_h",
+    hdrs = glob(["stub-config/*.h"]),
+    includes = ["stub-config"],
+    visibility = ["//bin:__pkg__"],
+)
+
+cc_library(
+    name = "bison_lib_hdrs",
+    hdrs = glob(["lib/*.h", "lib/timevar.def"]),
+    strip_include_prefix = "lib",
+    visibility = ["//bin:__pkg__"],
+)
+
+cc_library(
+    name = "bison_lib",
+    srcs = glob([
+        "lib/x*.c",
+        "lib/gl_*.c",
+        "src/*.c",
+        "src/*.h",
+    ], exclude = [
+        "src/scan-*.c",
+    ]) + [
+        "lib/abitset.c",
+        "lib/argmatch.c",
+        "lib/basename-lgpl.c",
+        "lib/bitrotate.c",
+        "lib/bitset.c",
+        "lib/bitset_stats.c",
+        "lib/bitsetv-print.c",
+        "lib/bitsetv.c",
+        "lib/c-ctype.c",
+        "lib/c-strcasecmp.c",
+        "lib/close-stream.c",
+        "lib/closeout.c",
+        "lib/concat-filename.c",
+        "lib/dup-safer.c",
+        "lib/ebitset.c",
+        "lib/error.c",
+        "lib/exitfail.c",
+        "lib/fatal-signal.c",
+        "lib/fd-safer.c",
+        "lib/fopen-safer.c",
+        "lib/fpending.c",
+        "lib/get-errno.c",
+        "lib/gethrxtime.c",
+        "lib/gettime.c",
+        "lib/hash.c",
+        "lib/lbitset.c",
+        "lib/localcharset.c",
+        "lib/mbswidth.c",
+        "lib/obstack.c",
+        "lib/obstack_printf.c",
+        "lib/path-join.c",
+        "lib/pipe-safer.c",
+        "lib/printf-args.c",
+        "lib/printf-parse.c",
+        "lib/progname.c",
+        "lib/quotearg.c",
+        "lib/sig-handler.c",
+        "lib/spawn-pipe.c",
+        "lib/strverscmp.c",
+        "lib/timevar.c",
+        "lib/vasnprintf.c",
+        "lib/vbitset.c",
+        "lib/wait-process.c",
+        "src/scan-code-c.c",
+        "src/scan-gram-c.c",
+        "src/scan-skel-c.c",
+    ],
+    includes = ["."],
+    textual_hdrs = glob([
+        "src/scan-*.c",
+    ]),
+    visibility = ["//bin:__pkg__"],
+    deps = [
+        ":config_h",
+        ":bison_lib_hdrs",
+    ],
+)
