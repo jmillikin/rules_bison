@@ -1,4 +1,5 @@
-load("//:bison.bzl", "BISON_VERSIONS", "bison_toolchain")
+load("//:bison.bzl", "BISON_VERSIONS")
+load("//bison:toolchain.bzl", "bison_toolchain")
 
 [bison_toolchain(
     name = "v{}".format(version),

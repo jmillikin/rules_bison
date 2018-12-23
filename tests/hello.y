@@ -1,64 +1,35 @@
 %{
- 
-/*
- * Parser.y file
- * To generate the parser run: "bison Parser.y"
- */
- 
-#include "Expression.h"
-#include "Parser.h"
-#include "Lexer.h"
+#include <stdio.h>
+#include "tests/hello_c.h"
 
-int yyerror(SExpression **expression, yyscan_t scanner, const char *msg) {
-    /* Add error handling routine as needed */
+static int next_token = HELLO;
+int yylex() {
+    int token = next_token;
+    if (token == HELLO) {
+        next_token = WORLD;
+    } else {
+        next_token = 0;
+    }
+    return token;
 }
- 
+
+void yyerror(const char *s) {
+  fprintf(stderr, "%s\n",s);
+}
+
 %}
 
-%code requires {
-  typedef void* yyscan_t;
+%start greeting
+%token HELLO WORLD
+
+%%
+
+greeting: HELLO WORLD {
+    printf("Hello, world!\n");
 }
 
-/*
-%output  "Parser.c"
-%defines "Parser.h"
-*/
- 
-%define api.pure
-%lex-param   { yyscan_t scanner }
-%parse-param { SExpression **expression }
-%parse-param { yyscan_t scanner }
+%%
 
-%union {
-    int value;
-    SExpression *expression;
+int main() {
+ return yyparse();
 }
- 
-%token TOKEN_LPAREN   "("
-%token TOKEN_RPAREN   ")"
-%token TOKEN_PLUS     "+"
-%token TOKEN_STAR     "*"
-%token <value> TOKEN_NUMBER "number"
-
-%type <expression> expr
-
-/* Precedence (increasing) and associativity:
-   a+b+c is (a+b)+c: left associativity
-   a+b*c is a+(b*c): the precedence of "*" is higher than that of "+". */
-%left "+"
-%left "*"
- 
-%%
- 
-input
-    : expr { *expression = $1; }
-    ;
- 
-expr
-    : expr[L] "+" expr[R] { $$ = createOperation( eADD, $L, $R ); }
-    | expr[L] "*" expr[R] { $$ = createOperation( eMULTIPLY, $L, $R ); }
-    | "(" expr[E] ")"     { $$ = $E; }
-    | "number"            { $$ = createNumber($1); }
-    ;
- 
-%%

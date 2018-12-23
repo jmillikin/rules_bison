@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <wchar.h>
 
 extern char **environ;
 
@@ -9,10 +10,10 @@ extern char **environ;
 #define PACKAGE_BUGREPORT "bug-bison@gnu.org"
 #define PACKAGE_COPYRIGHT_YEAR 2018
 #define PACKAGE_NAME "GNU Bison"
-#define PACKAGE_STRING "GNU Bison {version}"
+#define PACKAGE_STRING "GNU Bison {VERSION}"
 #define PACKAGE_URL "http://www.gnu.org/software/bison/"
-#define PACKAGE_VERSION "{version}"
-#define VERSION "{version}"
+#define PACKAGE_VERSION "{VERSION}"
+#define VERSION "{VERSION}"
 
 #define _GL_ARG_NONNULL(x)
 #define _GL_ATTRIBUTE_CONST __attribute__ ((const))
@@ -34,3 +35,9 @@ extern char **environ;
 #define M4_GNU_OPTION ""
 
 #define UNLOCKED_IO_H
+
+struct obstack;
+int obstack_printf(struct obstack *obs, const char *format, ...);
+int obstack_vprintf(struct obstack *obs, const char *format, va_list args);
+int strverscmp(const char *s1, const char *s2);
+int wcwidth(wchar_t wc);
