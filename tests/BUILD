@@ -1,34 +1,68 @@
-load("//:bison.bzl", "bison_parser")
+load("@io_bazel_rules_bison//bison:bison.bzl", "bison_cc_library", "bison_java_library")
 
-bison_parser(
+cc_library(
+    name = "hello_common",
+    srcs = ["hello_common.c"],
+    hdrs = ["hello_common.h"],
+)
+
+genrule(
+    name = "genrule_test",
+    srcs = ["hello_c.y"],
+    outs = ["genrule_output.c"],
+    cmd = """
+export M4=$(M4)
+$(BISON) $(location hello_c.y) -o $@
+""",
+    toolchains = [
+        "@io_bazel_rules_bison//bison:toolchain",
+        "@io_bazel_rules_m4//m4:toolchain",
+    ],
+)
+
+bison_cc_library(
     name = "hello_c",
-    src = "hello.y",
-    # default language is "c"
+    src = "hello_c.y",
+    deps = [":hello_common"],
 )
 
 cc_binary(
     name = "hello_c_bin",
-    srcs = [":hello_c"],
+    srcs = ["hello_c.c"],
+    deps = [":hello_c"],
 )
 
-bison_parser(
+bison_cc_library(
     name = "hello_cc",
-    src = "hello.y",
-    language = "c++",
+    src = "hello_cc.yy",
+    deps = [":hello_common"],
 )
 
-bison_parser(
-    name = "hello_java",
-    src = "hello.y",
-    language = "java",
+cc_binary(
+    name = "hello_cc_bin",
+    srcs = ["hello_cc.cc"],
+    deps = [":hello_cc"],
+)
+
+bison_java_library(
+    name = "HelloJavaParser",
+    src = "hello_java.y",
+)
+
+java_binary(
+    name = "HelloJavaMain",
+    srcs = ["HelloJavaMain.java"],
+    main_class = "HelloJavaMain",
+    deps = [":HelloJavaParser"],
 )
 
 filegroup(
     name = "testdata",
     srcs = [
-        ":hello_c",
-        ":hello_cc",
-        ":hello_java",
+        ":HelloJavaMain.jar",
+        ":genrule_test",
+        ":hello_c_bin",
+        ":hello_cc_bin",
     ],
 )
 
@@ -37,6 +71,7 @@ cc_test(
     srcs = ["bison_test.cc"],
     data = [":testdata"],
     deps = [
+        "@bazel_tools//tools/cpp/runfiles",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],

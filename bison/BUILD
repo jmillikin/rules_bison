@@ -1,4 +1,11 @@
+load("//bison:bison.bzl", "bison_toolchain_alias")
+
 toolchain_type(
     name = "toolchain_type",
-    visibility = ["@io_bazel_rules_bison//bison/toolchains:__pkg__"],
+    visibility = ["//visibility:public"],
+)
+
+bison_toolchain_alias(
+    name = "toolchain",
+    visibility = ["//visibility:public"],
 )

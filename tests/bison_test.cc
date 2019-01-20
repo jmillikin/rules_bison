@@ -1,40 +1,51 @@
 #include <fstream>
 #include <iostream>
 
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "gtest/gtest.h"
+#include "tools/cpp/runfiles/runfiles.h"
 
+using bazel::tools::cpp::runfiles::Runfiles;
+using std::string;
 using testing::HasSubstr;
 
-namespace {
+class RulesBison : public ::testing::Test {
+  protected:
+    void SetUp() override {
+        string error;
+        runfiles_.reset(Runfiles::CreateForTest(&error));
+        ASSERT_EQ(error, "");
+    }
 
-std::string ReadFile(const std::string& path) {
-    std::ifstream fp(path);
-    std::stringstream buf;
-    buf << fp.rdbuf();
-    return buf.str();
-}
+    string ReadFile(const string& path) {
+        string resolved_path = runfiles_->Rlocation(path);
+        std::ifstream fp(resolved_path);
+        EXPECT_TRUE(fp.is_open());
+        std::stringstream buf;
+        buf << fp.rdbuf();
+        return buf.str();
+    }
 
-}  // namespace
+    std::unique_ptr<Runfiles> runfiles_;
+};
 
-TEST(RulesBison, ParserSkeletonC) {
-    const auto parser_hdr = ReadFile("./tests/hello_c.h");
-    const auto parser_src = ReadFile("./tests/hello_c.c");
-
-    ASSERT_THAT(parser_hdr, HasSubstr("Bison interface for Yacc-like parsers in C"));
+TEST_F(RulesBison, GenruleTest) {
+    const auto parser_src = ReadFile("io_bazel_rules_bison/tests/genrule_output.c");
     ASSERT_THAT(parser_src, HasSubstr("Bison implementation for Yacc-like parsers in C"));
 }
 
-TEST(RulesBison, ParserSkeletonCxx) {
-    const auto parser_hdr = ReadFile("./tests/hello_cc.hh");
-    const auto parser_src = ReadFile("./tests/hello_cc.cc");
-
-    ASSERT_THAT(parser_hdr, HasSubstr("Skeleton interface for Bison LALR(1) parsers in C++"));
-    ASSERT_THAT(parser_src, HasSubstr("Skeleton implementation for Bison LALR(1) parsers in C++"));
+TEST_F(RulesBison, CompiledParserC) {
+    const auto hello_c_bin = ReadFile("io_bazel_rules_bison/tests/hello_c_bin");
+    ASSERT_TRUE(hello_c_bin.size() > 0);
 }
 
-TEST(RulesBison, ParserSkeletonJava) {
-    const auto parser_src = ReadFile("./tests/hello_java.java");
+TEST_F(RulesBison, CompiledParserCxx) {
+    const auto hello_cc_bin = ReadFile("io_bazel_rules_bison/tests/hello_cc_bin");
+    ASSERT_TRUE(hello_cc_bin.size() > 0);
+}
 
-    ASSERT_THAT(parser_src, HasSubstr("Skeleton implementation for Bison LALR(1) parsers in Java"));
+TEST_F(RulesBison, CompiledParserJava) {
+    const auto hello_java_bin = ReadFile("io_bazel_rules_bison/tests/HelloJavaMain.jar");
+    ASSERT_TRUE(hello_java_bin.size() > 0);
+
 }

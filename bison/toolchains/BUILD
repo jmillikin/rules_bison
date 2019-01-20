@@ -1,15 +1,7 @@
-load("//:bison.bzl", "BISON_VERSIONS")
-load("//bison:toolchain.bzl", "bison_toolchain")
-
-[bison_toolchain(
-    name = "v{}".format(version),
-    bison = "@bison_v{}//bin:bison".format(version),
-    tags = ["manual"],
-    visibility = ["//visibility:public"],
-) for version in BISON_VERSIONS]
+load("//bison:bison.bzl", "bison_common")
 
 [toolchain(
-    name = "v{}_toolchain".format(version),
-    toolchain = ":v{}".format(version),
-    toolchain_type = "//bison:toolchain_type",
-) for version in BISON_VERSIONS]
+    name = "v{}".format(version),
+    toolchain = "//bison/internal:toolchain_v{}".format(version),
+    toolchain_type = bison_common.TOOLCHAIN_TYPE,
+) for version in bison_common.VERSIONS]

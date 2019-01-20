@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include "tests/hello_c.h"
+#include "tests/hello_common.h"
 
 static int next_token = HELLO;
 int yylex() {
@@ -25,11 +26,8 @@ void yyerror(const char *s) {
 %%
 
 greeting: HELLO WORLD {
+    hello_common();
     printf("Hello, world!\n");
 }
 
 %%
-
-int main() {
- return yyparse();
-}
