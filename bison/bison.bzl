@@ -418,10 +418,12 @@ def _build_cc_info(ctx, source, header):
     _cc_link_static(ctx, cc_toolchain, ar_features, deps, out_obj, out_lib)
     _cc_link_dynamic(ctx, cc_toolchain, ld_features, deps, out_obj, out_dylib)
 
-    cc_info = CcInfo(
+    cc_compile_info = CcInfo(
         compilation_context = cc_common.create_compilation_context(
             headers = depset([header]),
         ),
+    )
+    cc_link_info = CcInfo(
         linking_context = cc_common.create_linking_context(
             libraries_to_link = [
                 cc_common.create_library_to_link(
@@ -442,7 +444,11 @@ def _build_cc_info(ctx, source, header):
     )
 
     return struct(
-        cc_info = cc_common.merge_cc_infos(cc_infos = [deps, cc_info]),
+        cc_info = cc_common.merge_cc_infos(cc_infos = [
+            cc_link_info,
+            cc_compile_info,
+            deps,
+        ]),
         outs = depset([out_lib, out_dylib]),
     )
 
