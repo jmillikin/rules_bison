@@ -1,6 +1,6 @@
 %language "Java"
 %name-prefix "HelloJava"
-%define parser_class_name "HelloJavaParser"
+%define parser_class_name { HelloJavaParser }
 %define public
 
 %start greeting
