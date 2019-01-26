@@ -24,6 +24,7 @@ extern char **environ;
 #define _GL_INLINE inline
 #define _GL_INLINE_HEADER_BEGIN
 #define _GL_INLINE_HEADER_END
+# define _GL_UNUSED __attribute__ ((__unused__))
 
 #define GNULIB_FOPEN_SAFER 1
 

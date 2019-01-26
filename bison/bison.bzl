@@ -36,9 +36,13 @@ load("@io_bazel_rules_m4//m4:m4.bzl", _m4_common = "m4_common")
 
 # region Versions {{{
 
-_LATEST = "3.2.2"
+_LATEST = "3.3"
 
 _VERSION_URLS = {
+    "3.3": {
+        "urls": ["https://ftp.gnu.org/gnu/bison/bison-3.3.tar.xz"],
+        "sha256": "162ea71d21e134c44942f4ebb74685e19c942dcf40a7120eba165ba5e2553bb9",
+    },
     "3.2.2": {
         "urls": ["https://ftp.gnu.org/gnu/bison/bison-3.2.2.tar.xz"],
         "sha256": "6f950f24e4d0745c7cc870e36d04f4057133ce0f31d6b4564e6f510a7d3ffafa",

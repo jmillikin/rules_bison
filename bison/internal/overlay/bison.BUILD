@@ -13,7 +13,7 @@ cc_library(
 
 cc_library(
     name = "bison_lib_hdrs",
-    hdrs = glob(["lib/*.h", "lib/timevar.def"]),
+    hdrs = glob(["lib/*.h", "lib/bitset/*.h", "lib/timevar.def"]),
     strip_include_prefix = "lib",
     visibility = ["//bin:__pkg__"],
 )
@@ -21,15 +21,17 @@ cc_library(
 cc_library(
     name = "bison_lib",
     srcs = glob([
+        "lib/bitset/*.c",
         "lib/x*.c",
         "lib/gl_*.c",
         "src/*.c",
         "src/*.h",
     ], exclude = [
         "src/scan-*.c",
-    ]) + [
+    ]) + glob([
         "lib/abitset.c",
         "lib/argmatch.c",
+        "lib/asnprintf.c",
         "lib/basename-lgpl.c",
         "lib/bitrotate.c",
         "lib/bitset.c",
@@ -74,7 +76,7 @@ cc_library(
         "src/scan-code-c.c",
         "src/scan-gram-c.c",
         "src/scan-skel-c.c",
-    ],
+    ]),
     includes = ["."],
     textual_hdrs = glob([
         "src/scan-*.c",
