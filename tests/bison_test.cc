@@ -19,7 +19,7 @@ class RulesBison : public ::testing::Test {
 
     string ReadFile(const string& path) {
         string resolved_path = runfiles_->Rlocation(path);
-        std::ifstream fp(resolved_path);
+        std::ifstream fp(resolved_path, std::ios_base::binary);
         EXPECT_TRUE(fp.is_open());
         std::stringstream buf;
         buf << fp.rdbuf();
