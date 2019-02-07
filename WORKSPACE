@@ -5,7 +5,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "io_bazel_rules_m4",
-    commit = "d091ab6d25496ab4347ce9216ca0406bc144e554",
+    commit = "ae19f8df57f680c6dbad4887e162ca17ee97a13e",
     remote = "https://github.com/jmillikin/rules_m4",
 )
 
