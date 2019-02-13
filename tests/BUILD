@@ -1,4 +1,4 @@
-load("@io_bazel_rules_bison//bison:bison.bzl", "bison_cc_library", "bison_java_library")
+load("@rules_bison//bison:bison.bzl", "bison_cc_library", "bison_java_library")
 
 cc_library(
     name = "hello_common",
@@ -15,8 +15,8 @@ export M4=$(M4)
 $(BISON) $(location hello_c.y) -o $@
 """,
     toolchains = [
-        "@io_bazel_rules_bison//bison:toolchain",
-        "@io_bazel_rules_m4//m4:toolchain",
+        "@rules_bison//bison:toolchain",
+        "@rules_m4//m4:toolchain",
     ],
 )
 

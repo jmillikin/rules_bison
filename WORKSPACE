@@ -1,19 +1,19 @@
-workspace(name = "io_bazel_rules_bison")
+workspace(name = "rules_bison")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
-    name = "io_bazel_rules_m4",
-    commit = "ae19f8df57f680c6dbad4887e162ca17ee97a13e",
+    name = "rules_m4",
+    commit = "2c0e74918536a8d4295c20b126ba2b2604d0bff1",
     remote = "https://github.com/jmillikin/rules_m4",
 )
 
-load("@io_bazel_rules_m4//m4:m4.bzl", "m4_register_toolchains")
+load("@rules_m4//m4:m4.bzl", "m4_register_toolchains")
 
 m4_register_toolchains()
 
-load("@io_bazel_rules_bison//bison:bison.bzl", "bison_register_toolchains")
+load("@rules_bison//bison:bison.bzl", "bison_register_toolchains")
 
 bison_register_toolchains()
 

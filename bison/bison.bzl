@@ -14,17 +14,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Bazel build rules for GNU Bison.
-
-```python
-load("@io_bazel_rules_m4//m4:m4.bzl", "m4_register_toolchains")
-m4_register_toolchains()
-
-load("@io_bazel_rules_bison//bison:bison.bzl", "bison_register_toolchains")
-bison_register_toolchains()
-```
-"""
-
 load(
     "@bazel_tools//tools/build_defs/cc:action_names.bzl",
     _ACTION_COMPILE_C = "C_COMPILE_ACTION_NAME",
@@ -32,7 +21,15 @@ load(
     _ACTION_LINK_DYNAMIC = "CPP_LINK_DYNAMIC_LIBRARY_ACTION_NAME",
     _ACTION_LINK_STATIC = "CPP_LINK_STATIC_LIBRARY_ACTION_NAME",
 )
-load("@io_bazel_rules_m4//m4:m4.bzl", _m4_common = "m4_common")
+load(
+    "@rules_bison//bison/internal:toolchain.bzl",
+    _TOOLCHAIN_TYPE = "TOOLCHAIN_TYPE",
+    _ToolchainInfo = "BisonToolchainInfo",
+)
+load(
+    "@rules_m4//m4:m4.bzl",
+    _m4_common = "m4_common",
+)
 
 # region Versions {{{
 
@@ -66,61 +63,6 @@ def _check_version(version):
 
 # endregion }}}
 
-# region Toolchain {{{
-
-_TOOLCHAIN_TYPE = "@io_bazel_rules_bison//bison:toolchain_type"
-
-_ToolchainInfo = provider(fields = ["files", "vars", "bison_executable"])
-
-_Internal = provider()
-
-def _bison_toolchain_info(ctx):
-    bison_runfiles = ctx.attr.bison[DefaultInfo].default_runfiles.files
-    toolchain = _ToolchainInfo(
-        bison_executable = ctx.executable.bison,
-        files = depset([ctx.executable.bison]) + bison_runfiles,
-        vars = {
-            "BISON": ctx.executable.bison.path,
-        },
-    )
-    return [
-        platform_common.ToolchainInfo(bison_toolchain = toolchain),
-        platform_common.TemplateVariableInfo(toolchain.vars),
-    ]
-
-bison_toolchain_info = rule(
-    _bison_toolchain_info,
-    attrs = {
-        "bison": attr.label(
-            executable = True,
-            cfg = "host",
-        ),
-    },
-)
-
-def _bison_toolchain_alias(ctx):
-    toolchain = ctx.toolchains[_TOOLCHAIN_TYPE].bison_toolchain
-    return [
-        DefaultInfo(files = toolchain.files),
-        toolchain,
-        platform_common.TemplateVariableInfo(toolchain.vars),
-        _Internal(
-            m4_deny_shell = ctx.executable._m4_deny_shell,
-        ),
-    ]
-
-bison_toolchain_alias = rule(
-    _bison_toolchain_alias,
-    toolchains = [_TOOLCHAIN_TYPE],
-    attrs = {
-        "_m4_deny_shell": attr.label(
-            executable = True,
-            default = "//bison/internal:m4_deny_shell",
-            cfg = "host",
-        ),
-    },
-)
-
 def bison_register_toolchains(version = _LATEST):
     _check_version(version)
     repo_name = "bison_v{}".format(version)
@@ -129,9 +71,7 @@ def bison_register_toolchains(version = _LATEST):
             name = repo_name,
             version = version,
         )
-    native.register_toolchains("@io_bazel_rules_bison//bison/toolchains:v{}".format(version))
-
-# endregion }}}
+    native.register_toolchains("@rules_bison//bison/toolchains:v{}".format(version))
 
 bison_common = struct(
     VERSIONS = list(_VERSION_URLS),
@@ -148,19 +88,26 @@ _SRC_EXT = {
 }
 
 _COMMON_ATTR = {
-    "opts": attr.string_list(
-        allow_empty = True,
-    ),
+    "bison_options": attr.string_list(),
     "skeleton": attr.label(
         allow_single_file = True,
     ),
     "_bison_toolchain": attr.label(
-        default = "//bison:toolchain",
+        default = "@rules_bison//bison:toolchain",
+    ),
+    "_m4_deny_shell": attr.label(
+        executable = True,
+        default = "@rules_bison//bison/internal:m4_deny_shell",
+        cfg = "host",
     ),
     "_m4_toolchain": attr.label(
-        default = "@io_bazel_rules_m4//m4:toolchain",
+        default = "@rules_m4//m4:toolchain",
     ),
 }
+
+def _bison_attrs(rule_attrs):
+    rule_attrs.update(_COMMON_ATTR)
+    return rule_attrs
 
 def _bison_common(ctx, language):
     m4_toolchain = ctx.attr._m4_toolchain[_m4_common.ToolchainInfo]
@@ -176,7 +123,7 @@ def _bison_common(ctx, language):
     parser_files = [out_src]
     report_files = [out_xml, out_dot, out_txt]
 
-    inputs = m4_toolchain.files + bison_toolchain.files + ctx.files.src
+    inputs = list(ctx.files.src)
 
     args = ctx.actions.args()
     args.add_all([
@@ -197,27 +144,35 @@ def _bison_common(ctx, language):
 
     if ctx.attr.skeleton:
         args.add("--skeleton=" + ctx.file.skeleton.path)
-        inputs += ctx.files.skeleton
+        inputs.append(ctx.file.skeleton)
 
-    args.add_all(ctx.attr.opts)
+    args.add_all(ctx.attr.bison_options)
     args.add(ctx.file.src.path)
 
     ctx.actions.run(
         executable = bison_toolchain.bison_executable,
         arguments = [args],
-        inputs = inputs,
+        inputs = depset(
+            direct = inputs,
+            transitive = [
+                bison_toolchain.files,
+                m4_toolchain.files,
+            ],
+        ),
+        tools = [ctx.executable._m4_deny_shell],
         outputs = parser_files + report_files,
         env = {
             "M4": m4_toolchain.m4_executable.path,
+            "M4_SYSCMD_SHELL": ctx.executable._m4_deny_shell.path,
         },
         mnemonic = "Bison",
-        progress_message = "Generating {}".format(ctx.label),
+        progress_message = "Bison {}".format(ctx.label),
     )
     return struct(
         source = out_src,
         header = out_hdr,
-        outs = depset(parser_files),
-        report_files = depset(report_files),
+        outs = depset(direct = parser_files),
+        report_files = depset(direct = report_files),
     )
 
 # region rule(bison) {{{
@@ -233,32 +188,19 @@ def _bison(ctx):
         OutputGroupInfo(bison_report = result.report_files),
     ]
 
-def _default_language(src):
-    return "c"
-
 bison = rule(
     _bison,
-    attrs = _COMMON_ATTR + {
+    attrs = _bison_attrs({
         "src": attr.label(
             mandatory = True,
             allow_single_file = [".y", ".yy", ".y++", ".yxx", ".ypp"],
         ),
-    },
+    }),
+    provides = [
+        DefaultInfo,
+        OutputGroupInfo,
+    ],
 )
-"""Generate a Bison parser implementation from Yacc-ish source.
-
-```python
-load("@io_bazel_rules_bison//bison:bison.bzl", "bison")
-bison(
-    name = "hello",
-    src = "hello.y",
-)
-cc_binary(
-    name = "hello_bin",
-    srcs = [":hello"],
-)
-```
-"""
 
 # endregion }}}
 
@@ -286,11 +228,16 @@ def _cc_compile(ctx, cc_toolchain, cc_features, deps, source, header, out_obj, u
         output_file = out_obj.path,
         use_pic = use_pic,
         include_directories = deps.compilation_context.includes,
-        quote_include_directories = depset([
-            ".",
-            ctx.genfiles_dir.path,
-            ctx.bin_dir.path,
-        ]) + deps.compilation_context.quote_includes,
+        quote_include_directories = depset(
+            direct = [
+                ".",
+                ctx.genfiles_dir.path,
+                ctx.bin_dir.path,
+            ],
+            transitive = [
+                deps.compilation_context.quote_includes,
+            ],
+        ),
         system_include_directories = deps.compilation_context.system_includes,
         preprocessor_defines = deps.compilation_context.defines,
     )
@@ -308,7 +255,13 @@ def _cc_compile(ctx, cc_toolchain, cc_features, deps, source, header, out_obj, u
     )
 
     ctx.actions.run(
-        inputs = toolchain_inputs + deps.compilation_context.headers + depset([source, header]),
+        inputs = depset(
+            direct = [source, header],
+            transitive = [
+                toolchain_inputs,
+                deps.compilation_context.headers,
+            ],
+        ),
         outputs = [out_obj],
         executable = cc,
         arguments = cc_argv,
@@ -346,7 +299,10 @@ def _cc_link_static(ctx, cc_toolchain, cc_features, deps, obj, out_lib):
     )
 
     ctx.actions.run(
-        inputs = toolchain_inputs + depset([obj]),
+        inputs = depset(
+            direct = [obj],
+            transitive = [toolchain_inputs],
+        ),
         outputs = [out_lib],
         executable = ar,
         arguments = ar_argv + [obj.path],
@@ -385,7 +341,10 @@ def _cc_link_dynamic(ctx, cc_toolchain, cc_features, deps, obj, out_lib):
     )
 
     ctx.actions.run(
-        inputs = toolchain_inputs + depset([obj]),
+        inputs = depset(
+            direct = [obj],
+            transitive = [toolchain_inputs],
+        ),
         outputs = [out_lib],
         executable = ld,
         arguments = ld_argv + [obj.path],
@@ -400,6 +359,11 @@ def _obj_name(ctx, src, pic):
     pic_ext = ""
     if pic:
         pic_ext = "pic."
+
+    # Note: this returns the wrong value on Windows, though MSVC is gracious
+    # enough to accept UNIX object extensions.
+    #
+    # https://github.com/bazelbuild/bazel/issues/7170
     return "_objs/{}/{}{}o".format(ctx.attr.name, base, pic_ext)
 
 def _build_cc_info(ctx, source, header):
@@ -435,7 +399,7 @@ def _build_cc_info(ctx, source, header):
 
     cc_compile_info = CcInfo(
         compilation_context = cc_common.create_compilation_context(
-            headers = depset([header]),
+            headers = depset(direct = [header]),
         ),
     )
     cc_link_info = CcInfo(
@@ -464,7 +428,7 @@ def _build_cc_info(ctx, source, header):
             cc_compile_info,
             deps,
         ]),
-        outs = depset([out_lib, out_dylib]),
+        outs = depset(direct = [out_lib, out_dylib]),
     )
 
 # endregion }}}
@@ -484,19 +448,23 @@ def _bison_cc_library(ctx):
 
 bison_cc_library = rule(
     _bison_cc_library,
-    attrs = _COMMON_ATTR + {
+    attrs = _bison_attrs({
         "src": attr.label(
             mandatory = True,
             allow_single_file = [".y", ".yy", ".y++", ".yxx", ".ypp"],
         ),
         "deps": attr.label_list(
-            allow_empty = True,
             providers = [CcInfo],
         ),
         "_cc_toolchain": attr.label(
             default = "@bazel_tools//tools/cpp:current_cc_toolchain",
         ),
-    },
+    }),
+    provides = [
+        CcInfo,
+        DefaultInfo,
+        OutputGroupInfo,
+    ],
 )
 
 # endregion }}}
@@ -515,20 +483,19 @@ def _bison_java_library(ctx):
         deps = ctx.attr.deps,
     )
     return [
-        DefaultInfo(files = depset([out_jar])),
+        DefaultInfo(files = depset(direct = [out_jar])),
         java_info,
         OutputGroupInfo(bison_report = result.report_files),
     ]
 
 bison_java_library = rule(
     _bison_java_library,
-    attrs = _COMMON_ATTR + {
+    attrs = _bison_attrs({
         "src": attr.label(
             mandatory = True,
             allow_single_file = [".y"],
         ),
         "deps": attr.label_list(
-            allow_empty = True,
             providers = [JavaInfo],
         ),
         "_host_javabase": attr.label(
@@ -537,8 +504,13 @@ bison_java_library = rule(
         "_java_toolchain": attr.label(
             default = "@bazel_tools//tools/jdk:toolchain",
         ),
-    },
+    }),
     fragments = ["java"],
+    provides = [
+        DefaultInfo,
+        JavaInfo,
+        OutputGroupInfo,
+    ],
 )
 
 # endregion }}}
@@ -622,31 +594,31 @@ bison_repository = repository_rule(
         "version": attr.string(mandatory = True),
         "_overlay_BUILD": attr.label(
             default = "//bison/internal:overlay/bison.BUILD",
-            single_file = True,
+            allow_single_file = True,
         ),
         "_overlay_bin_BUILD": attr.label(
             default = "//bison/internal:overlay/bison_bin.BUILD",
-            single_file = True,
+            allow_single_file = True,
         ),
         "_overlay_configmake_h": attr.label(
             default = "//bison/internal:overlay/configmake.h",
-            single_file = True,
+            allow_single_file = True,
         ),
         "_common_config_h": attr.label(
             default = "//bison/internal:overlay/gnulib_common_config.h",
-            single_file = True,
+            allow_single_file = True,
         ),
         "_darwin_config_h": attr.label(
             default = "//bison/internal:overlay/gnulib-darwin/config.h",
-            single_file = True,
+            allow_single_file = True,
         ),
         "_linux_config_h": attr.label(
             default = "//bison/internal:overlay/gnulib-linux/config.h",
-            single_file = True,
+            allow_single_file = True,
         ),
         "_windows_config_h": attr.label(
             default = "//bison/internal:overlay/gnulib-windows/config.h",
-            single_file = True,
+            allow_single_file = True,
         ),
     },
 )

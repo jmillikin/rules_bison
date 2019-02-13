@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load("@io_bazel_rules_bison//bison/internal:gnulib.bzl", "gnulib_windows_shims")
+load("@rules_bison//bison/internal:gnulib.bzl", "gnulib_windows_shims")
 
 filegroup(
     name = "bison_data",

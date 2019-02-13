@@ -1,4 +1,5 @@
-load("//bison:bison.bzl", "bison_common", "bison_toolchain_info")
+load("@rules_bison//bison:bison.bzl", "bison_common")
+load("@rules_bison//bison/internal:toolchain.bzl", "bison_toolchain_info")
 
 [bison_toolchain_info(
     name = "toolchain_v{}".format(version),
@@ -10,5 +11,5 @@ load("//bison:bison.bzl", "bison_common", "bison_toolchain_info")
 cc_binary(
     name = "m4_deny_shell",
     srcs = ["m4_deny_shell.cc"],
-    visibility = ["//bison:__pkg__"],
+    visibility = ["//visibility:public"],
 )

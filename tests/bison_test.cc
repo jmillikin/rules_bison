@@ -30,22 +30,22 @@ class RulesBison : public ::testing::Test {
 };
 
 TEST_F(RulesBison, GenruleTest) {
-    const auto parser_src = ReadFile("io_bazel_rules_bison/tests/genrule_output.c");
+    const auto parser_src = ReadFile("rules_bison/tests/genrule_output.c");
     ASSERT_THAT(parser_src, HasSubstr("Bison implementation for Yacc-like parsers in C"));
 }
 
 TEST_F(RulesBison, CompiledParserC) {
-    const auto hello_c_bin = ReadFile("io_bazel_rules_bison/tests/hello_c_bin");
+    const auto hello_c_bin = ReadFile("rules_bison/tests/hello_c_bin");
     ASSERT_TRUE(hello_c_bin.size() > 0);
 }
 
 TEST_F(RulesBison, CompiledParserCxx) {
-    const auto hello_cc_bin = ReadFile("io_bazel_rules_bison/tests/hello_cc_bin");
+    const auto hello_cc_bin = ReadFile("rules_bison/tests/hello_cc_bin");
     ASSERT_TRUE(hello_cc_bin.size() > 0);
 }
 
 TEST_F(RulesBison, CompiledParserJava) {
-    const auto hello_java_bin = ReadFile("io_bazel_rules_bison/tests/HelloJavaMain.jar");
+    const auto hello_java_bin = ReadFile("rules_bison/tests/HelloJavaMain.jar");
     ASSERT_TRUE(hello_java_bin.size() > 0);
 
 }

@@ -609,7 +609,7 @@ def _gnulib_stdlib_shims_impl(ctx):
             )
             outs.append(out)
     return DefaultInfo(
-        files = depset(outs),
+        files = depset(direct = outs),
     )
 
 _gnulib_stdlib_shims = rule(
