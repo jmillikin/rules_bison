@@ -1,12 +1,11 @@
 workspace(name = "rules_bison")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-git_repository(
+http_archive(
     name = "rules_m4",
-    commit = "2c0e74918536a8d4295c20b126ba2b2604d0bff1",
-    remote = "https://github.com/jmillikin/rules_m4",
+    urls = ["https://github.com/jmillikin/rules_m4/releases/download/v0.1/rules_m4-v0.1.tar.xz"],
+    sha256 = "7bb12b8a5a96037ff3d36993a9bb5436c097e8d1287a573d5958b9d054c0a4f7",
 )
 
 load("@rules_m4//m4:m4.bzl", "m4_register_toolchains")

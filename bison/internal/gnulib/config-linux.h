@@ -1,11 +1,23 @@
+{GNULIB_CONFIG_HEADER}
+
+#define _GL_ATTRIBUTE_FORMAT_PRINTF(x, y)
+
+#define O_BINARY 0
+#define O_TEXT 0
+
+extern char **environ;
+
+/******************************************************************************/
+
 #define CHECK_PRINTF_SAFE 1
 #define C_LOCALE_MAYBE_EILSEQ 1
 #define DBL_EXPBIT0_BIT 20
 #define DBL_EXPBIT0_WORD 1
-#define ENABLE_NLS 1
 #define FLT_EXPBIT0_BIT 23
 #define FLT_EXPBIT0_WORD 0
+#define FUNC_REALPATH_WORKS 1
 #define GETTIMEOFDAY_TIMEZONE struct timezone
+#define GNULIB_CANONICALIZE_LGPL 1
 #define GNULIB_CLOSE_STREAM 1
 #define GNULIB_DIRNAME 1
 #define GNULIB_FD_SAFER_FLAG 1
@@ -22,10 +34,10 @@
 #define HAVE_ALLOCA 1
 #define HAVE_ALLOCA_H 1
 #define HAVE_CALLOC_POSIX 1
+#define HAVE_CANONICALIZE_FILE_NAME 1
 #define HAVE_CATGETS 1
 #define HAVE_CLOCK_GETTIME 1
 #define HAVE_CLOCK_SETTIME 1
-#define HAVE_DCGETTEXT 1
 #define HAVE_DECL_ALARM 1
 #define HAVE_DECL_CLEARERR_UNLOCKED 1
 #define HAVE_DECL_FEOF_UNLOCKED 1
@@ -46,6 +58,7 @@
 #define HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME 1
 #define HAVE_DECL_PUTCHAR_UNLOCKED 1
 #define HAVE_DECL_PUTC_UNLOCKED 1
+#define HAVE_DECL_SETENV 1
 #define HAVE_DECL_SNPRINTF 1
 #define HAVE_DECL_STRDUP 1
 #define HAVE_DECL_STRERROR_R 1
@@ -63,11 +76,11 @@
 #define HAVE_FEATURES_H 1
 #define HAVE_FREXPL_IN_LIBC 1
 #define HAVE_FREXP_IN_LIBC 1
+#define HAVE_GETCWD 1
 #define HAVE_GETDTABLESIZE 1
 #define HAVE_GETOPT_H 1
 #define HAVE_GETOPT_LONG_ONLY 1
 #define HAVE_GETRUSAGE 1
-#define HAVE_GETTEXT 1
 #define HAVE_GETTIMEOFDAY 1
 #define HAVE_INTMAX_T 1
 #define HAVE_INTTYPES_H 1
@@ -82,7 +95,7 @@
 #define HAVE_LDEXPL_IN_LIBC 1
 #define HAVE_LDEXP_IN_LIBC 1
 #define HAVE_LIMITS_H 1
-#define HAVE_LOCALE_H 1
+#define HAVE_LINK 1
 #define HAVE_LONG_LONG_INT 1
 #define HAVE_LSTAT 1
 #define HAVE_MALLOC_GNU 1
@@ -105,8 +118,12 @@
 #define HAVE_PTHREAD_RWLOCK 1
 #define HAVE_RAISE 1
 #define HAVE_RAWMEMCHR 1
+#define HAVE_READLINK 1
+#define HAVE_READLINKAT 1
 #define HAVE_REALLOC_POSIX 1
-#define HAVE_SETLOCALE 1
+#define HAVE_REALPATH 1
+#define HAVE_SEARCH_H 1
+#define HAVE_SETENV 1
 #define HAVE_SIGACTION 1
 #define HAVE_SIGALTSTACK 1
 #define HAVE_SIGINTERRUPT 1
@@ -143,6 +160,7 @@
 #define HAVE_SYS_TYPES_H 1
 #define HAVE_SYS_WAIT_H 1
 #define HAVE_TOWLOWER 1
+#define HAVE_TSEARCH 1
 #define HAVE_UNISTD_H 1
 #define HAVE_UNSETENV 1
 #define HAVE_UNSIGNED_LONG_LONG_INT 1
@@ -160,30 +178,40 @@
 #define HAVE_WORKING_O_NOFOLLOW 1
 #define HAVE__BOOL 1
 #define HAVE___XPG_STRERROR_R 1
+#define INSTALLPREFIX "/usr/local"
 #define LSTAT_FOLLOWS_SLASHED_SYMLINK 1
-#define M4 "/usr/bin/m4"
-#define M4_GNU_OPTION "--gnu"
 #define MALLOC_0_IS_NONNULL 1
-#ifndef __USE_MINGW_ANSI_STDIO
 # define __USE_MINGW_ANSI_STDIO 1
-#endif
 #define PROMOTED_MODE_T mode_t
 #define REPLACE_FPRINTF_POSIX 1
 #define REPLACE_PRINTF_POSIX 1
 #define REPLACE_VFPRINTF_POSIX 1
-#if defined __CYGWIN__
-# define BOURNE_SHELL "sh"
-#else
-# define BOURNE_SHELL "/bin/sh"
-#endif
-#ifndef SIZE_MAX
-#endif
 #define STDC_HEADERS 1
 #define STRERROR_R_CHAR_P 1
 #define TYPEOF_STRUCT_STAT_ST_ATIM_IS_STRUCT_TIMESPEC 1
 #define USER_LABEL_PREFIX 
 #define USE_POSIX_THREADS 1
 #define USE_POSIX_THREADS_WEAK 1
+# define _ALL_SOURCE 1
+# define _DARWIN_C_SOURCE 1
+# define _GNU_SOURCE 1
+# define _NETBSD_SOURCE 1
+# define _OPENBSD_SOURCE 1
+# define _POSIX_PTHREAD_SEMANTICS 1
+# define __STDC_WANT_IEC_60559_ATTRIBS_EXT__ 1
+# define __STDC_WANT_IEC_60559_BFP_EXT__ 1
+# define __STDC_WANT_IEC_60559_DFP_EXT__ 1
+# define __STDC_WANT_IEC_60559_FUNCS_EXT__ 1
+# define __STDC_WANT_IEC_60559_TYPES_EXT__ 1
+# define __STDC_WANT_LIB_EXT2__ 1
+# define __STDC_WANT_MATH_SPEC_FUNCS__ 1
+# define _TANDEM_SOURCE 1
+# define _HPUX_ALT_XOPEN_SOCKET_API 1
+# define __EXTENSIONS__ 1
 #define USE_UNLOCKED_IO 1
+#define _DARWIN_USE_64_BIT_INODE 1
+#define _NETBSD_SOURCE 1
+#define _USE_STD_STAT 1
+#define restrict __restrict
 
-#include <gnulib_common_config.h>
+{GNULIB_CONFIG_FOOTER}

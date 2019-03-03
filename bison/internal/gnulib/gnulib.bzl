@@ -14,6 +14,126 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+load(
+    "@rules_bison//bison/internal:versions.bzl",
+    _VERSION_URLS = "VERSION_URLS",
+)
+
+_GNULIB_VERSION = "788db09a9f88abbef73c97e8d7291c40455336d8"
+_GNULIB_SHA256 = "4350696d531852118f3735a0e2d1091746388392c27d582f0cc241b6a39fe493"
+
+_URL_BASE = "github.com/jmillikin/rules_bison/releases/download/v0.1/gnulib-{}.tar.xz".format(_GNULIB_VERSION)
+
+_GNULIB_URLS = [
+    "https://mirror.bazel.build/" + _URL_BASE,
+    "https://" + _URL_BASE,
+]
+
+_CONFIG_HEADER = """
+#include "gnulib/lib/config.in.h"
+#include "gnulib/lib/arg-nonnull.h"
+
+#define PACKAGE "bison"
+#define PACKAGE_BUGREPORT "bug-bison@gnu.org"
+#define PACKAGE_COPYRIGHT_YEAR {BISON_COPYRIGHT_YEAR}
+#define PACKAGE_NAME "GNU Bison"
+#define PACKAGE_STRING "GNU Bison {BISON_VERSION}"
+#define PACKAGE_URL "http://www.gnu.org/software/bison/"
+#define PACKAGE_VERSION "{BISON_VERSION}"
+#define VERSION "{BISON_VERSION}"
+
+#define M4 "/bin/false"
+#define M4_GNU_OPTION ""
+"""
+
+_CONFIG_FOOTER = """
+#include <stdint.h>
+#include <stdio.h>
+#include <wchar.h>
+
+struct obstack;
+int obstack_printf(struct obstack *obs, const char *format, ...);
+int obstack_vprintf(struct obstack *obs, const char *format, va_list args);
+int strverscmp(const char *s1, const char *s2);
+int wcwidth(wchar_t wc);
+"""
+
+_CONFIGMAKE_H = """
+#define LOCALEDIR ""
+#define PKGDATADIR "{WORKSPACE_ROOT}/data"
+"""
+
+def gnulib_overlay(ctx, bison_version):
+    ctx.download_and_extract(
+        url = _GNULIB_URLS,
+        sha256 = _GNULIB_SHA256,
+        output = "gnulib",
+        stripPrefix = "gnulib-" + _GNULIB_VERSION,
+    )
+    ctx.symlink(ctx.attr._gnulib_build, "gnulib/BUILD.bazel")
+
+    config_header = _CONFIG_HEADER.format(
+        BISON_VERSION = bison_version,
+        BISON_COPYRIGHT_YEAR = _VERSION_URLS[bison_version]["copyright_year"],
+    )
+
+    for (os, template) in [
+        ("darwin", ctx.attr._gnulib_config_darwin_h),
+        ("linux", ctx.attr._gnulib_config_linux_h),
+        ("windows", ctx.attr._gnulib_config_windows_h),
+    ]:
+        config_prefix = "gnulib/config-{}/".format(os)
+
+        ctx.template(config_prefix + "config.h", template, substitutions = {
+            "{GNULIB_CONFIG_HEADER}": config_header,
+            "{GNULIB_CONFIG_FOOTER}": _CONFIG_FOOTER,
+        }, executable = False)
+
+        ctx.file(config_prefix + "configmake.h", _CONFIGMAKE_H.format(
+            WORKSPACE_ROOT = "external/" + ctx.attr.name,
+        ))
+
+    for shim in _WINDOWS_STDLIB_SHIMS:
+        in_h = "gnulib/lib/{}.in.h".format(shim.replace("/", "_"))
+        out_h = "gnulib/config-windows/shim-libc/gnulib/{}.h".format(shim)
+        ctx.template(out_h, in_h, substitutions = _WINDOWS_AC_SUBST, executable = False)
+
+    # Older versions of Gnulib had a different layout for 'bitset'
+    ctx.file("gnulib/lib/bitset_stats.h", '#include "gnulib/lib/bitset/stats.h"')
+    ctx.file("gnulib/lib/bitsetv-print.h", '#include "gnulib/lib/bitsetv.h"')
+
+    # Fix a mismatch between _Noreturn and __attribute_noreturn__ when
+    # building with a C11-aware GCC.
+    ctx.template("gnulib/lib/obstack.c", "gnulib/lib/obstack.c", substitutions = {
+        "static _Noreturn void": "static _Noreturn __attribute_noreturn__ void",
+    }, executable = False)
+
+    # Ambiguous include path of timevar.def confuses Bazel's C++ header dependency
+    # checker. Work around this by using non-ambiguous paths.
+    ctx.template("gnulib/lib/timevar.c", "gnulib/lib/timevar.c", substitutions = {
+        '"timevar.def"': '"lib/timevar.def"',
+    }, executable = False)
+    ctx.template("gnulib/lib/timevar.h", "gnulib/lib/timevar.h", substitutions = {
+        '"timevar.def"': '"lib/timevar.def"',
+    }, executable = False)
+
+    # Force isnanl() to be defined in terms of standard isnan() macro,
+    # instead of compiler-specific __builtin_isnan().
+    ctx.file("gnulib/lib/isnanl-nolibm.h", "\n".join([
+        "#include <math.h>",
+        "#define isnanl isnan",
+    ]))
+
+    # gnulib tries to detect the maximum file descriptor count by passing
+    # an invalid value to an OS API and seeing what happens. Well, what happens
+    # in debug mode is the binary is aborted.
+    #
+    # Per https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setmaxstdio
+    # the maximum limit of this value is 2048. Lets hope that's good enough.
+    ctx.template("gnulib/lib/getdtablesize.c", "gnulib/lib/getdtablesize.c", substitutions = {
+        "for (bound = 0x10000;": "for (bound = 2048;",
+    }, executable = False)
+
 _WINDOWS_STDLIB_SHIMS = [
     "alloca",
     "errno",
@@ -42,9 +162,9 @@ _WINDOWS_AC_SUBST = {
     "@INCLUDE_NEXT@": "include",
     "@GUARD_PREFIX@": "GL_BISON",
     "@ASM_SYMBOL_PREFIX@": '""',
-    "/* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */": '#include "lib/c++defs.h"',
-    "/* The definition of _GL_ARG_NONNULL is copied here.  */": '#include "lib/arg-nonnull.h"',
-    "/* The definition of _GL_WARN_ON_USE is copied here.  */": '#include "lib/warn-on-use.h"',
+    "/* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */": '#include "gnulib/lib/c++defs.h"',
+    "/* The definition of _GL_ARG_NONNULL is copied here.  */": '#include "gnulib/lib/arg-nonnull.h"',
+    "/* The definition of _GL_WARN_ON_USE is copied here.  */": '#include "gnulib/lib/warn-on-use.h"',
 
     # alloca.h
 
@@ -596,40 +716,3 @@ _WINDOWS_AC_SUBST = {
     "@GNULIB_WCTRANS@": "0",
     "@GNULIB_TOWCTRANS@": "0",
 }
-
-def _gnulib_stdlib_shims_impl(ctx):
-    outs = []
-    for src, out_name in ctx.attr.srcs.items():
-        for src_file in src.files:
-            out = ctx.actions.declare_file(out_name)
-            ctx.actions.expand_template(
-                template = src_file,
-                output = out,
-                substitutions = ctx.attr.ac_subst,
-            )
-            outs.append(out)
-    return DefaultInfo(
-        files = depset(direct = outs),
-    )
-
-_gnulib_stdlib_shims = rule(
-    _gnulib_stdlib_shims_impl,
-    attrs = {
-        "srcs": attr.label_keyed_string_dict(
-            allow_files = [".in.h"],
-        ),
-        "ac_subst": attr.string_dict(),
-    },
-)
-
-def gnulib_windows_shims(name):
-    srcs = {}
-    for shim in _WINDOWS_STDLIB_SHIMS:
-        in_h = "lib/{}.in.h".format(shim.replace("/", "_"))
-        out_h = "gnulib-windows/shim-libc/gnulib/{}.h".format(shim)
-        srcs[in_h] = out_h
-    _gnulib_stdlib_shims(
-        name = name,
-        srcs = srcs,
-        ac_subst = _WINDOWS_AC_SUBST,
-    )

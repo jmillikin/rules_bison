@@ -1,3 +1,4 @@
+{GNULIB_CONFIG_HEADER}
 #define WINDOWS_NATIVE
 
 /* Disable MSVC's assertions that language keywords aren't being
@@ -59,6 +60,8 @@
 
 #pragma include_alias( <gnulib-system-libc/wctype.h>, <wctype.h> )
 #pragma include_alias( <wctype.h>, <gnulib/wctype.h> )
+
+/******************************************************************************/
 
 #define CHECK_PRINTF_SAFE 1
 #define DBL_EXPBIT0_BIT 20
@@ -128,7 +131,6 @@
 #define HAVE_LDEXPL_IN_LIBC 1
 #define HAVE_LDEXP_IN_LIBC 1
 #define HAVE_LIMITS_H 1
-#define HAVE_LOCALE_H 1
 #define HAVE_LONG_LONG_INT 1
 #define HAVE_MALLOC_GNU 1
 #define HAVE_MATH_H 1
@@ -139,7 +141,6 @@
 #define HAVE_RAISE 1
 #define HAVE_SAME_LONG_DOUBLE_AS_DOUBLE 1
 #define HAVE_SEARCH_H 1
-#define HAVE_SETLOCALE 1
 #define HAVE_SIG_ATOMIC_T 1
 #define HAVE_SNPRINTF_RETVAL_C99 1
 #define HAVE_STDINT_H 1
@@ -167,12 +168,8 @@
 #define INSTALLPREFIX "/usr"
 #define LDBL_EXPBIT0_BIT 20
 #define LDBL_EXPBIT0_WORD 1
-#define M4 "/usr/bin/m4"
-#define M4_GNU_OPTION "--gnu"
 #define MALLOC_0_IS_NONNULL 1
-#ifndef __USE_MINGW_ANSI_STDIO
 # define __USE_MINGW_ANSI_STDIO 1
-#endif
 #define NEED_PRINTF_DIRECTIVE_A 1
 #define NEED_PRINTF_DOUBLE 1
 #define NEED_PRINTF_ENOMEM 1
@@ -185,26 +182,35 @@
 #define REPLACE_POSIX_SPAWN 1
 #define REPLACE_PRINTF_POSIX 1
 #define REPLACE_VFPRINTF_POSIX 1
-#if defined __CYGWIN__
-# define BOURNE_SHELL "sh"
-#else
-# define BOURNE_SHELL "/bin/sh"
-#endif
-#ifndef SIZE_MAX
-#endif
 #define STDC_HEADERS 1
-#define USER_LABEL_PREFIX 
+#define USER_LABEL_PREFIX _
+# define _ALL_SOURCE 1
+# define _DARWIN_C_SOURCE 1
+# define _GNU_SOURCE 1
+# define _NETBSD_SOURCE 1
+# define _OPENBSD_SOURCE 1
+# define _POSIX_PTHREAD_SEMANTICS 1
+# define __STDC_WANT_IEC_60559_ATTRIBS_EXT__ 1
+# define __STDC_WANT_IEC_60559_BFP_EXT__ 1
+# define __STDC_WANT_IEC_60559_DFP_EXT__ 1
+# define __STDC_WANT_IEC_60559_FUNCS_EXT__ 1
+# define __STDC_WANT_IEC_60559_TYPES_EXT__ 1
+# define __STDC_WANT_LIB_EXT2__ 1
+# define __STDC_WANT_MATH_SPEC_FUNCS__ 1
+# define _TANDEM_SOURCE 1
+# define _HPUX_ALT_XOPEN_SOCKET_API 1
+# define __EXTENSIONS__ 1
 #define USE_UNLOCKED_IO 1
+#define _DARWIN_USE_64_BIT_INODE 1
+#define _NETBSD_SOURCE 1
 #define _USE_STD_STAT 1
 #define __GETOPT_PREFIX rpl_
 #define gid_t int
 #define mode_t int
 #define nlink_t int
 #define pid_t int
+#define restrict /**/
+#define ssize_t int
 #define uid_t int
 
-#include <gnulib_common_config.h>
-
-#include <BaseTsd.h>
-#define ssize_t SSIZE_T
-#define uintptr_t DWORD_PTR
+{GNULIB_CONFIG_FOOTER}

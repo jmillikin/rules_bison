@@ -22,48 +22,36 @@ load(
     _ACTION_LINK_STATIC = "CPP_LINK_STATIC_LIBRARY_ACTION_NAME",
 )
 load(
+    "@rules_bison//bison/internal:repository.bzl",
+    _bison_repository = "bison_repository",
+)
+load(
     "@rules_bison//bison/internal:toolchain.bzl",
     _TOOLCHAIN_TYPE = "TOOLCHAIN_TYPE",
-    _ToolchainInfo = "BisonToolchainInfo",
+    _ToolchainInfo = "ToolchainInfo",
+)
+load(
+    "@rules_bison//bison/internal:versions.bzl",
+    _DEFAULT_VERSION = "DEFAULT_VERSION",
+    _check_version = "check_version",
 )
 load(
     "@rules_m4//m4:m4.bzl",
     _m4_common = "m4_common",
 )
 
-# region Versions {{{
+bison_repository = _bison_repository
 
-_LATEST = "3.3"
+def _ctx_toolchain(ctx):
+    return ctx.toolchains[_TOOLCHAIN_TYPE].bison_toolchain
 
-_MIRRORS = [
-    "https://mirror.bazel.build/ftp.gnu.org/gnu/bison/",
-    "https://mirrors.kernel.org/gnu/bison/",
-    "https://ftp.gnu.org/gnu/bison/",
-]
+bison_common = struct(
+    TOOLCHAIN_TYPE = _TOOLCHAIN_TYPE,
+    ToolchainInfo = _ToolchainInfo,
+    bison_toolchain = _ctx_toolchain,
+)
 
-def _urls(filename):
-    return [m + filename for m in _MIRRORS]
-
-_VERSION_URLS = {
-    "3.3": {
-        "urls": _urls("bison-3.3.tar.xz"),
-        "sha256": "162ea71d21e134c44942f4ebb74685e19c942dcf40a7120eba165ba5e2553bb9",
-        "copyright_year": "2019",
-    },
-    "3.2.2": {
-        "urls": _urls("bison-3.2.2.tar.xz"),
-        "sha256": "6f950f24e4d0745c7cc870e36d04f4057133ce0f31d6b4564e6f510a7d3ffafa",
-        "copyright_year": "2018",
-    },
-}
-
-def _check_version(version):
-    if version not in _VERSION_URLS:
-        fail("GNU Bison version {} not supported by rules_bison.".format(repr(version)))
-
-# endregion }}}
-
-def bison_register_toolchains(version = _LATEST):
+def bison_register_toolchains(version = _DEFAULT_VERSION):
     _check_version(version)
     repo_name = "bison_v{}".format(version)
     if repo_name not in native.existing_rules().keys():
@@ -72,14 +60,6 @@ def bison_register_toolchains(version = _LATEST):
             version = version,
         )
     native.register_toolchains("@rules_bison//bison/toolchains:v{}".format(version))
-
-bison_common = struct(
-    VERSIONS = list(_VERSION_URLS),
-    ToolchainInfo = _ToolchainInfo,
-    TOOLCHAIN_TYPE = _TOOLCHAIN_TYPE,
-)
-
-# region Build Rules {{{
 
 _SRC_EXT = {
     "c": "c",
@@ -92,26 +72,25 @@ _COMMON_ATTR = {
     "skeleton": attr.label(
         allow_single_file = True,
     ),
-    "_bison_toolchain": attr.label(
-        default = "@rules_bison//bison:toolchain",
-    ),
     "_m4_deny_shell": attr.label(
         executable = True,
         default = "@rules_bison//bison/internal:m4_deny_shell",
         cfg = "host",
     ),
-    "_m4_toolchain": attr.label(
-        default = "@rules_m4//m4:toolchain",
-    ),
 }
+
+_BISON_RULE_TOOLCHAINS = [
+    _m4_common.TOOLCHAIN_TYPE,
+    bison_common.TOOLCHAIN_TYPE,
+]
 
 def _bison_attrs(rule_attrs):
     rule_attrs.update(_COMMON_ATTR)
     return rule_attrs
 
 def _bison_common(ctx, language):
-    m4_toolchain = ctx.attr._m4_toolchain[_m4_common.ToolchainInfo]
-    bison_toolchain = ctx.attr._bison_toolchain[bison_common.ToolchainInfo]
+    m4_toolchain = _m4_common.m4_toolchain(ctx)
+    bison_toolchain = bison_common.bison_toolchain(ctx)
 
     out_src_ext = _SRC_EXT[language]
 
@@ -175,8 +154,6 @@ def _bison_common(ctx, language):
         report_files = depset(direct = report_files),
     )
 
-# region rule(bison) {{{
-
 def _bison(ctx):
     if ctx.file.src.extension == "y":
         language = "c"
@@ -200,13 +177,8 @@ bison = rule(
         DefaultInfo,
         OutputGroupInfo,
     ],
+    toolchains = _BISON_RULE_TOOLCHAINS,
 )
-
-# endregion }}}
-
-# region rule(bison_cc_library) {{{
-
-# region C++ toolchain integration {{{
 
 def _cc_compile(ctx, cc_toolchain, cc_features, deps, source, header, out_obj, use_pic):
     toolchain_inputs = ctx.attr._cc_toolchain[DefaultInfo].files
@@ -431,8 +403,6 @@ def _build_cc_info(ctx, source, header):
         outs = depset(direct = [out_lib, out_dylib]),
     )
 
-# endregion }}}
-
 def _bison_cc_library(ctx):
     if ctx.file.src.extension == "y":
         language = "c"
@@ -465,11 +435,8 @@ bison_cc_library = rule(
         DefaultInfo,
         OutputGroupInfo,
     ],
+    toolchains = _BISON_RULE_TOOLCHAINS,
 )
-
-# endregion }}}
-
-# region rule(bison_java_library) {{{
 
 def _bison_java_library(ctx):
     result = _bison_common(ctx, "java")
@@ -511,116 +478,5 @@ bison_java_library = rule(
         JavaInfo,
         OutputGroupInfo,
     ],
+    toolchains = _BISON_RULE_TOOLCHAINS,
 )
-
-# endregion }}}
-
-# endregion }}}
-
-# region Repository Rules {{{
-
-def _bison_repository(ctx):
-    version = ctx.attr.version
-    _check_version(version)
-    source = _VERSION_URLS[version]
-
-    ctx.download_and_extract(
-        url = source["urls"],
-        sha256 = source["sha256"],
-        stripPrefix = "bison-{}".format(version),
-    )
-
-    ctx.file("WORKSPACE", "workspace(name = {name})\n".format(name = repr(ctx.name)))
-    ctx.symlink(ctx.attr._overlay_BUILD, "BUILD.bazel")
-    ctx.symlink(ctx.attr._overlay_bin_BUILD, "bin/BUILD.bazel")
-    ctx.template("stub-config/configmake.h", ctx.attr._overlay_configmake_h, {
-        "{WORKSPACE_ROOT}": "external/" + ctx.attr.name,
-    })
-    ctx.template("stub-config/gnulib_common_config.h", ctx.attr._common_config_h, {
-        "{VERSION}": version,
-        "{COPYRIGHT_YEAR}": source["copyright_year"],
-    })
-
-    ctx.symlink(ctx.attr._darwin_config_h, "gnulib-darwin/config/config.h")
-    ctx.symlink(ctx.attr._linux_config_h, "gnulib-linux/config/config.h")
-    ctx.symlink(ctx.attr._windows_config_h, "gnulib-windows/config/config.h")
-
-    ctx.template("lib/error.c", "lib/error.c", substitutions = {
-        # error.c depends on the gnulib libc shims to inject gnulib macros. Fix this
-        # by injecting explicit include directives.
-        '#include "error.h"\n': "\n".join([
-            '#include "error.h"',
-            '#include "arg-nonnull.h"',
-        ]),
-        # Hardcode getprogname() to "bison" to avoid digging into the gnulib shims.
-        "#define program_name getprogname ()": '#define program_name "bison"',
-    }, executable = False)
-
-    # Force isnanl() to be defined in terms of standard isnan() macro,
-    # instead of compiler-specific __builtin_isnan().
-    ctx.file("lib/isnanl-nolibm.h", """
-#include <math.h>
-#define isnanl isnan
-""")
-
-    # Fix a mismatch between _Noreturn and __attribute_noreturn__ when
-    # building with a C11-aware GCC.
-    ctx.template("lib/obstack.c", "lib/obstack.c", substitutions = {
-        "static _Noreturn void": "static _Noreturn __attribute_noreturn__ void",
-    })
-
-    # Ambiguous include path of timevar.def confuses Bazel's C++ header dependency
-    # checker. Work around this by using non-ambiguous paths.
-    ctx.template("lib/timevar.c", "lib/timevar.c", substitutions = {
-        '"timevar.def"': '"lib/timevar.def"',
-    })
-    ctx.template("lib/timevar.h", "lib/timevar.h", substitutions = {
-        '"timevar.def"': '"lib/timevar.def"',
-    })
-
-    # gnulib tries to detect the maximum file descriptor count by passing
-    # an invalid value to an OS API and seeing what happens. Well, what happens
-    # in debug mode is the binary is aborted.
-    #
-    # Per https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setmaxstdio
-    # the maximum limit of this value is 2048. Lets hope that's good enough.
-    ctx.template("lib/getdtablesize.c", "lib/getdtablesize.c", substitutions = {
-        "for (bound = 0x10000;": "for (bound = 2048;",
-    })
-
-bison_repository = repository_rule(
-    _bison_repository,
-    attrs = {
-        "version": attr.string(mandatory = True),
-        "_overlay_BUILD": attr.label(
-            default = "//bison/internal:overlay/bison.BUILD",
-            allow_single_file = True,
-        ),
-        "_overlay_bin_BUILD": attr.label(
-            default = "//bison/internal:overlay/bison_bin.BUILD",
-            allow_single_file = True,
-        ),
-        "_overlay_configmake_h": attr.label(
-            default = "//bison/internal:overlay/configmake.h",
-            allow_single_file = True,
-        ),
-        "_common_config_h": attr.label(
-            default = "//bison/internal:overlay/gnulib_common_config.h",
-            allow_single_file = True,
-        ),
-        "_darwin_config_h": attr.label(
-            default = "//bison/internal:overlay/gnulib-darwin/config.h",
-            allow_single_file = True,
-        ),
-        "_linux_config_h": attr.label(
-            default = "//bison/internal:overlay/gnulib-linux/config.h",
-            allow_single_file = True,
-        ),
-        "_windows_config_h": attr.label(
-            default = "//bison/internal:overlay/gnulib-windows/config.h",
-            allow_single_file = True,
-        ),
-    },
-)
-
-# endregion }}}

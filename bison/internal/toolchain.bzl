@@ -16,11 +16,11 @@
 
 TOOLCHAIN_TYPE = "@rules_bison//bison:toolchain_type"
 
-BisonToolchainInfo = provider(fields = ["files", "vars", "bison_executable"])
+ToolchainInfo = provider(fields = ["files", "vars", "bison_executable"])
 
 def _bison_toolchain_info(ctx):
     bison_runfiles = ctx.attr.bison[DefaultInfo].default_runfiles.files
-    toolchain = BisonToolchainInfo(
+    toolchain = ToolchainInfo(
         bison_executable = ctx.executable.bison,
         files = depset(
             direct = [ctx.executable.bison],
@@ -63,7 +63,7 @@ bison_toolchain_alias = rule(
     toolchains = [TOOLCHAIN_TYPE],
     provides = [
         DefaultInfo,
-        BisonToolchainInfo,
+        ToolchainInfo,
         platform_common.TemplateVariableInfo,
     ],
 )

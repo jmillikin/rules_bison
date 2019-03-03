@@ -14,51 +14,32 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load("@rules_bison//bison/internal:gnulib.bzl", "gnulib_windows_shims")
-
-filegroup(
-    name = "bison_data",
-    srcs = glob(["data/**/*"]),
-    visibility = ["//bin:__pkg__"],
-)
-
 cc_library(
     name = "config_h",
-    hdrs = glob(["stub-config/*.h"]) + select({
+    hdrs = select({
+        "@bazel_tools//src/conditions:darwin": glob(["config-darwin/*.h"]),
+        "@bazel_tools//src/conditions:windows": glob(["config-windows/*.h"]),
+        "//conditions:default": glob(["config-linux/*.h"]),
+    }),
+    includes = select({
         "@bazel_tools//src/conditions:darwin": [
-            "gnulib-darwin/config/config.h",
+            "config-darwin",
         ],
         "@bazel_tools//src/conditions:windows": [
-            "gnulib-windows/config/config.h",
+            "config-windows",
         ],
         "//conditions:default": [
-            "gnulib-linux/config/config.h",
+            "config-linux",
         ],
     }),
-    includes = ["stub-config"] + select({
-        "@bazel_tools//src/conditions:darwin": [
-            "gnulib-darwin/config",
-        ],
-        "@bazel_tools//src/conditions:windows": [
-            "gnulib-windows/config",
-        ],
-        "//conditions:default": [
-            "gnulib-linux/config",
-        ],
-    }),
-)
-
-gnulib_windows_shims(
-    name = "gnulib_windows_shims_h",
+    visibility = ["//:__pkg__"],
 )
 
 cc_library(
     name = "gnulib_windows_shims",
-    hdrs = [":gnulib_windows_shims_h"],
-    includes = ["gnulib-windows/shim-libc"],
-    deps = [
-        ":config_h",
-    ],
+    hdrs = glob(["config-windows/shim-libc/**/*"]),
+    includes = ["config-windows/shim-libc"],
+    deps = [":config_h"],
 )
 
 _GNULIB_HDRS = glob([
@@ -124,6 +105,7 @@ _GNULIB_DARWIN_SRCS = []
 _GNULIB_LINUX_SRCS = glob([
     "lib/bitrotate.c",
     "lib/c-ctype.c",
+    "lib/getprogname.c",
     "lib/gl_list.c",
     "lib/gl_xlist.c",
     "lib/sig-handler.c",
@@ -199,41 +181,17 @@ cc_library(
         "//conditions:default": _GNULIB_LINUX_SRCS,
     }),
     hdrs = _GNULIB_HDRS,
-    copts = _COPTS,
-    strip_include_prefix = "lib",
+    copts = _COPTS + ["-DHAVE_CONFIG_H"],
+    includes = ["lib"],
     textual_hdrs = [
         "lib/printf-frexp.c",
-        "lib/timevar.def",
     ],
+    visibility = ["//:__pkg__"],
     deps = [
         ":config_h",
+        "//:timevar_def",
     ] + select({
         "@bazel_tools//src/conditions:windows": [":gnulib_windows_shims"],
         "//conditions:default": [],
     }),
-)
-
-cc_library(
-    name = "bison_lib",
-    srcs = glob(
-        [
-            "src/*.c",
-            "src/*.h",
-        ],
-        exclude = [
-            "src/scan-*.c",
-        ],
-    ) + glob([
-        "src/scan-*-c.c",
-    ]),
-    copts = _COPTS,
-    includes = ["."],
-    textual_hdrs = glob([
-        "src/scan-*.c",
-    ]),
-    visibility = ["//bin:__pkg__"],
-    deps = [
-        ":config_h",
-        ":gnulib",
-    ],
 )
