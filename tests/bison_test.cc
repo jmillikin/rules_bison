@@ -9,6 +9,12 @@ using bazel::tools::cpp::runfiles::Runfiles;
 using std::string;
 using testing::HasSubstr;
 
+#ifdef _WIN32
+# define EXE ".exe"
+#else
+# define EXE ""
+#endif
+
 class RulesBison : public ::testing::Test {
   protected:
     void SetUp() override {
@@ -35,12 +41,12 @@ TEST_F(RulesBison, GenruleTest) {
 }
 
 TEST_F(RulesBison, CompiledParserC) {
-    const auto hello_c_bin = ReadFile("rules_bison/tests/hello_c_bin");
+    const auto hello_c_bin = ReadFile("rules_bison/tests/hello_c_bin" EXE);
     ASSERT_TRUE(hello_c_bin.size() > 0);
 }
 
 TEST_F(RulesBison, CompiledParserCxx) {
-    const auto hello_cc_bin = ReadFile("rules_bison/tests/hello_cc_bin");
+    const auto hello_cc_bin = ReadFile("rules_bison/tests/hello_cc_bin" EXE);
     ASSERT_TRUE(hello_cc_bin.size() > 0);
 }
 
