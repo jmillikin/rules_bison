@@ -42,8 +42,8 @@ _CONFIG_HEADER = """
 #define PACKAGE_VERSION "{BISON_VERSION}"
 #define VERSION "{BISON_VERSION}"
 
-#define M4 "/bin/false"
-#define M4_GNU_OPTION ""
+#define M4 "m4"
+#define M4_GNU_OPTION "--gnu"
 """
 
 _CONFIG_FOOTER = """
@@ -124,7 +124,7 @@ def gnulib_overlay(ctx, bison_version):
         "#define isnanl isnan",
     ]))
 
-    # gnulib tries to detect the maximum file descriptor count by passing
+    # Gnulib tries to detect the maximum file descriptor count by passing
     # an invalid value to an OS API and seeing what happens. Well, what happens
     # in debug mode is the binary is aborted.
     #
@@ -132,6 +132,18 @@ def gnulib_overlay(ctx, bison_version):
     # the maximum limit of this value is 2048. Lets hope that's good enough.
     ctx.template("gnulib/lib/getdtablesize.c", "gnulib/lib/getdtablesize.c", substitutions = {
         "for (bound = 0x10000;": "for (bound = 2048;",
+    }, executable = False)
+
+    # Gnulib uses spawnvpe() to emulate fork/exec on Windows, but something
+    # about its other environment variable shims conflicts with spawnvpe's
+    # internal environment concatenation. Spawning M4 from Bison in a
+    # release build consistently crashes the process.
+    #
+    # Bison doesn't attempt to manipulate the environment variables of its
+    # child processes, so we can avoid the issue by disabling environment
+    # manipulation in Gnulib's shim.
+    ctx.template("gnulib/lib/spawn-pipe.c", "gnulib/lib/spawn-pipe.c", substitutions = {
+        "(const char **) environ": "NULL",
     }, executable = False)
 
 _WINDOWS_STDLIB_SHIMS = [
