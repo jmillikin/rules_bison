@@ -15,11 +15,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load(
-    "@bazel_tools//tools/build_defs/cc:action_names.bzl",
-    _ACTION_COMPILE_C = "C_COMPILE_ACTION_NAME",
-    _ACTION_COMPILE_CXX = "CPP_COMPILE_ACTION_NAME",
-    _ACTION_LINK_DYNAMIC = "CPP_LINK_DYNAMIC_LIBRARY_ACTION_NAME",
-    _ACTION_LINK_STATIC = "CPP_LINK_STATIC_LIBRARY_ACTION_NAME",
+    "@rules_bison//bison/internal:cc_actions.bzl",
+    _cc_library = "cc_library",
 )
 load(
     "@rules_bison//bison/internal:repository.bzl",
@@ -180,239 +177,16 @@ bison = rule(
     toolchains = _BISON_RULE_TOOLCHAINS,
 )
 
-def _cc_compile(ctx, cc_toolchain, cc_features, deps, source, header, out_obj, use_pic):
-    toolchain_inputs = ctx.attr._cc_toolchain[DefaultInfo].files
-
-    if source.extension == "c":
-        cc_action = _ACTION_COMPILE_C
-    else:
-        cc_action = _ACTION_COMPILE_CXX
-
-    cc = cc_common.get_tool_for_action(
-        feature_configuration = cc_features,
-        action_name = cc_action,
-    )
-
-    cc_vars = cc_common.create_compile_variables(
-        cc_toolchain = cc_toolchain,
-        feature_configuration = cc_features,
-        source_file = source.path,
-        output_file = out_obj.path,
-        use_pic = use_pic,
-        include_directories = deps.compilation_context.includes,
-        quote_include_directories = depset(
-            direct = [
-                ".",
-                ctx.genfiles_dir.path,
-                ctx.bin_dir.path,
-            ],
-            transitive = [
-                deps.compilation_context.quote_includes,
-            ],
-        ),
-        system_include_directories = deps.compilation_context.system_includes,
-        preprocessor_defines = deps.compilation_context.defines,
-    )
-
-    cc_argv = cc_common.get_memory_inefficient_command_line(
-        feature_configuration = cc_features,
-        action_name = cc_action,
-        variables = cc_vars,
-    )
-
-    cc_env = cc_common.get_environment_variables(
-        feature_configuration = cc_features,
-        action_name = cc_action,
-        variables = cc_vars,
-    )
-
-    ctx.actions.run(
-        inputs = depset(
-            direct = [source, header],
-            transitive = [
-                toolchain_inputs,
-                deps.compilation_context.headers,
-            ],
-        ),
-        outputs = [out_obj],
-        executable = cc,
-        arguments = cc_argv,
-        mnemonic = "CppCompile",
-        progress_message = "Compiling {}".format(source.short_path),
-        env = cc_env,
-    )
-
-def _cc_link_static(ctx, cc_toolchain, cc_features, deps, obj, out_lib):
-    toolchain_inputs = ctx.attr._cc_toolchain[DefaultInfo].files
-
-    ar = cc_common.get_tool_for_action(
-        feature_configuration = cc_features,
-        action_name = _ACTION_LINK_STATIC,
-    )
-
-    ar_vars = cc_common.create_link_variables(
-        cc_toolchain = cc_toolchain,
-        feature_configuration = cc_features,
-        output_file = out_lib.path,
-        is_using_linker = False,
-        is_static_linking_mode = True,
-    )
-
-    ar_argv = cc_common.get_memory_inefficient_command_line(
-        feature_configuration = cc_features,
-        action_name = _ACTION_LINK_STATIC,
-        variables = ar_vars,
-    )
-
-    ar_env = cc_common.get_environment_variables(
-        feature_configuration = cc_features,
-        action_name = _ACTION_LINK_STATIC,
-        variables = ar_vars,
-    )
-
-    ctx.actions.run(
-        inputs = depset(
-            direct = [obj],
-            transitive = [toolchain_inputs],
-        ),
-        outputs = [out_lib],
-        executable = ar,
-        arguments = ar_argv + [obj.path],
-        mnemonic = "CppLink",
-        progress_message = "Linking {}".format(out_lib.short_path),
-        env = ar_env,
-    )
-
-def _cc_link_dynamic(ctx, cc_toolchain, cc_features, deps, obj, out_lib):
-    toolchain_inputs = ctx.attr._cc_toolchain[DefaultInfo].files
-
-    ld = cc_common.get_tool_for_action(
-        feature_configuration = cc_features,
-        action_name = _ACTION_LINK_DYNAMIC,
-    )
-
-    ld_vars = cc_common.create_link_variables(
-        cc_toolchain = cc_toolchain,
-        feature_configuration = cc_features,
-        output_file = out_lib.path,
-        is_using_linker = True,
-        is_static_linking_mode = False,
-        is_linking_dynamic_library = True,
-    )
-
-    ld_argv = cc_common.get_memory_inefficient_command_line(
-        feature_configuration = cc_features,
-        action_name = _ACTION_LINK_DYNAMIC,
-        variables = ld_vars,
-    )
-
-    ld_env = cc_common.get_environment_variables(
-        feature_configuration = cc_features,
-        action_name = _ACTION_LINK_DYNAMIC,
-        variables = ld_vars,
-    )
-
-    ctx.actions.run(
-        inputs = depset(
-            direct = [obj],
-            transitive = [toolchain_inputs],
-        ),
-        outputs = [out_lib],
-        executable = ld,
-        arguments = ld_argv + [obj.path],
-        mnemonic = "CppLink",
-        progress_message = "Linking {}".format(out_lib.short_path),
-        env = ld_env,
-    )
-
-def _obj_name(ctx, src, pic):
-    ext = src.extension
-    base = src.basename[:-len(ext)]
-    pic_ext = ""
-    if pic:
-        pic_ext = "pic."
-
-    # Note: this returns the wrong value on Windows, though MSVC is gracious
-    # enough to accept UNIX object extensions.
-    #
-    # https://github.com/bazelbuild/bazel/issues/7170
-    return "_objs/{}/{}{}o".format(ctx.attr.name, base, pic_ext)
-
-def _build_cc_info(ctx, source, header):
-    cc_toolchain = ctx.attr._cc_toolchain[cc_common.CcToolchainInfo]
-
-    cc_features = cc_common.configure_features(
-        cc_toolchain = cc_toolchain,
-    )
-    ar_features = cc_common.configure_features(
-        cc_toolchain = cc_toolchain,
-    )
-    ld_features = cc_common.configure_features(
-        cc_toolchain = cc_toolchain,
-        requested_features = ["dynamic_linking_mode"],
-    )
-
-    use_pic = cc_toolchain.needs_pic_for_dynamic_libraries(
-        feature_configuration = ld_features,
-    )
-
-    deps = cc_common.merge_cc_infos(cc_infos = [
-        dep[CcInfo]
-        for dep in ctx.attr.deps
-    ])
-
-    out_obj = ctx.actions.declare_file(_obj_name(ctx, source, use_pic))
-    out_lib = ctx.actions.declare_file("lib{}.a".format(ctx.attr.name))
-    out_dylib = ctx.actions.declare_file("lib{}.so".format(ctx.attr.name))
-
-    _cc_compile(ctx, cc_toolchain, cc_features, deps, source, header, out_obj, use_pic)
-    _cc_link_static(ctx, cc_toolchain, ar_features, deps, out_obj, out_lib)
-    _cc_link_dynamic(ctx, cc_toolchain, ld_features, deps, out_obj, out_dylib)
-
-    cc_compile_info = CcInfo(
-        compilation_context = cc_common.create_compilation_context(
-            headers = depset(direct = [header]),
-        ),
-    )
-    cc_link_info = CcInfo(
-        linking_context = cc_common.create_linking_context(
-            libraries_to_link = [
-                cc_common.create_library_to_link(
-                    actions = ctx.actions,
-                    feature_configuration = ar_features,
-                    cc_toolchain = cc_toolchain,
-                    static_library = None if use_pic else out_lib,
-                    pic_static_library = out_lib if use_pic else None,
-                ),
-                cc_common.create_library_to_link(
-                    actions = ctx.actions,
-                    feature_configuration = ld_features,
-                    cc_toolchain = cc_toolchain,
-                    dynamic_library = out_dylib,
-                ),
-            ],
-        ),
-    )
-
-    return struct(
-        cc_info = cc_common.merge_cc_infos(cc_infos = [
-            cc_link_info,
-            cc_compile_info,
-            deps,
-        ]),
-        outs = depset(direct = [out_lib, out_dylib]),
-    )
-
 def _bison_cc_library(ctx):
     if ctx.file.src.extension == "y":
         language = "c"
     else:
         language = "c++"
     result = _bison_common(ctx, language)
-    cc = _build_cc_info(ctx, result.source, result.header)
+    cc_lib = _cc_library(ctx, result.source, result.header)
     return [
-        DefaultInfo(files = cc.outs),
-        cc.cc_info,
+        DefaultInfo(files = cc_lib.outs),
+        cc_lib.cc_info,
         OutputGroupInfo(bison_report = result.report_files),
     ]
 
