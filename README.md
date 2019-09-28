@@ -1,4 +1,4 @@
-# Bazel buuld rules for GNU Bison
+# Bazel build rules for GNU Bison
 
 ## Overview
 
@@ -15,8 +15,8 @@ m4_register_toolchains()
 
 http_archive(
     name = "rules_bison",
-    # See https://github.com/jmillikin/rules_bison/releases for copy-pastable
-    # URLs and checksums.
+    urls = ["https://github.com/jmillikin/rules_bison/releases/download/v0.2/rules_bison-v0.2.tar.xz"],
+    sha256 = "6ee9b396f450ca9753c3283944f9a6015b61227f8386893fb59d593455141481",
 )
 load("@rules_bison//bison:bison.bzl", "bison_register_toolchains")
 bison_register_toolchains()
