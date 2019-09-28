@@ -15,10 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load(
-    "@rules_bison//bison/internal:cc_actions.bzl",
-    _cc_library = "cc_library",
-)
-load(
     "@rules_bison//bison/internal:repository.bzl",
     _bison_repository = "bison_repository",
 )
@@ -177,13 +173,60 @@ bison = rule(
     toolchains = _BISON_RULE_TOOLCHAINS,
 )
 
+def _cc_library(ctx, bison_result):
+    cc_toolchain = ctx.attr._cc_toolchain[cc_common.CcToolchainInfo]
+
+    cc_deps = cc_common.merge_cc_infos(cc_infos = [
+        dep[CcInfo]
+        for dep in ctx.attr.deps
+    ])
+
+    cc_feature_configuration = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = cc_toolchain,
+        requested_features = ctx.attr.features,
+    )
+
+    (cc_compilation_context, cc_compilation_outputs) = cc_common.compile(
+        name = ctx.attr.name,
+        actions = ctx.actions,
+        cc_toolchain = cc_toolchain,
+        feature_configuration = cc_feature_configuration,
+        srcs = [bison_result.source],
+        private_hdrs = [bison_result.header],
+        compilation_contexts = [cc_deps.compilation_context],
+    )
+
+    (cc_linking_context, cc_linking_outputs) = cc_common.create_linking_context_from_compilation_outputs(
+        name = ctx.attr.name,
+        actions = ctx.actions,
+        feature_configuration = cc_feature_configuration,
+        cc_toolchain = cc_toolchain,
+        compilation_outputs = cc_compilation_outputs,
+        linking_contexts = [cc_deps.linking_context],
+    )
+
+    outs = []
+    if cc_linking_outputs.library_to_link.static_library:
+        outs.append(cc_linking_outputs.library_to_link.static_library)
+    if cc_linking_outputs.library_to_link.dynamic_library:
+        outs.append(cc_linking_outputs.library_to_link.dynamic_library)
+
+    return struct(
+        outs = depset(direct = outs),
+        cc_info = CcInfo(
+            compilation_context = cc_compilation_context,
+            linking_context = cc_linking_context,
+        ),
+    )
+
 def _bison_cc_library(ctx):
     if ctx.file.src.extension == "y":
         language = "c"
     else:
         language = "c++"
     result = _bison_common(ctx, language)
-    cc_lib = _cc_library(ctx, result.source, result.header)
+    cc_lib = _cc_library(ctx, result)
     return [
         DefaultInfo(files = cc_lib.outs),
         cc_lib.cc_info,
@@ -210,6 +253,7 @@ bison_cc_library = rule(
         OutputGroupInfo,
     ],
     toolchains = _BISON_RULE_TOOLCHAINS,
+    fragments = ["cpp"],
 )
 
 def _bison_java_library(ctx):
@@ -217,8 +261,8 @@ def _bison_java_library(ctx):
     out_jar = ctx.actions.declare_file("lib{}.jar".format(ctx.attr.name))
     java_info = java_common.compile(
         ctx,
-        java_toolchain = ctx.attr._java_toolchain,
-        host_javabase = ctx.attr._host_javabase,
+        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+        host_javabase = ctx.attr._host_javabase[java_common.JavaRuntimeInfo],
         source_files = [result.source],
         output = out_jar,
         deps = ctx.attr.deps,
