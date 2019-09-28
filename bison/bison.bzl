@@ -14,38 +14,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load(
-    "@rules_bison//bison/internal:repository.bzl",
-    _bison_repository = "bison_repository",
-)
-load(
-    "@rules_bison//bison/internal:toolchain.bzl",
-    _TOOLCHAIN_TYPE = "TOOLCHAIN_TYPE",
-    _ToolchainInfo = "ToolchainInfo",
-)
-load(
-    "@rules_bison//bison/internal:versions.bzl",
-    _DEFAULT_VERSION = "DEFAULT_VERSION",
-    _check_version = "check_version",
-)
-load(
-    "@rules_m4//m4:m4.bzl",
-    _m4_common = "m4_common",
-)
+load("@rules_bison//bison/internal:repository.bzl", _bison_repository = "bison_repository")
+load("@rules_bison//bison/internal:toolchain.bzl", _BISON_TOOLCHAIN_TYPE = "BISON_TOOLCHAIN_TYPE")
+load("@rules_bison//bison/internal:versions.bzl", "DEFAULT_VERSION", "check_version")
+load("@rules_m4//m4:m4.bzl", "M4_TOOLCHAIN_TYPE")
 
+BISON_TOOLCHAIN_TYPE = _BISON_TOOLCHAIN_TYPE
 bison_repository = _bison_repository
 
-def _ctx_toolchain(ctx):
-    return ctx.toolchains[_TOOLCHAIN_TYPE].bison_toolchain
+def bison_toolchain(ctx):
+    return ctx.toolchains[BISON_TOOLCHAIN_TYPE].bison_toolchain
 
-bison_common = struct(
-    TOOLCHAIN_TYPE = _TOOLCHAIN_TYPE,
-    ToolchainInfo = _ToolchainInfo,
-    bison_toolchain = _ctx_toolchain,
-)
-
-def bison_register_toolchains(version = _DEFAULT_VERSION):
-    _check_version(version)
+def bison_register_toolchains(version = DEFAULT_VERSION):
+    check_version(version)
     repo_name = "bison_v{}".format(version)
     if repo_name not in native.existing_rules().keys():
         bison_repository(
@@ -73,8 +54,8 @@ _COMMON_ATTR = {
 }
 
 _BISON_RULE_TOOLCHAINS = [
-    _m4_common.TOOLCHAIN_TYPE,
-    bison_common.TOOLCHAIN_TYPE,
+    M4_TOOLCHAIN_TYPE,
+    BISON_TOOLCHAIN_TYPE,
 ]
 
 def _bison_attrs(rule_attrs):
@@ -82,8 +63,7 @@ def _bison_attrs(rule_attrs):
     return rule_attrs
 
 def _bison_common(ctx, language):
-    m4_toolchain = _m4_common.m4_toolchain(ctx)
-    bison_toolchain = bison_common.bison_toolchain(ctx)
+    bison = bison_toolchain(ctx)
 
     out_src_ext = _SRC_EXT[language]
 
@@ -122,21 +102,15 @@ def _bison_common(ctx, language):
     args.add(ctx.file.src.path)
 
     ctx.actions.run(
-        executable = bison_toolchain.bison_executable,
+        executable = bison.bison_tool,
         arguments = [args],
-        inputs = depset(
-            direct = inputs,
-            transitive = [
-                bison_toolchain.files,
-                m4_toolchain.files,
-            ],
-        ),
+        inputs = depset(direct = inputs),
         tools = [ctx.executable._m4_deny_shell],
         outputs = parser_files + report_files,
-        env = {
-            "M4": m4_toolchain.m4_executable.path,
-            "M4_SYSCMD_SHELL": ctx.executable._m4_deny_shell.path,
-        },
+        env = dict(
+            bison.bison_env,
+            M4_SYSCMD_SHELL = ctx.executable._m4_deny_shell.path,
+        ),
         mnemonic = "Bison",
         progress_message = "Bison {}".format(ctx.label),
     )

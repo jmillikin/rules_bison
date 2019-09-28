@@ -15,8 +15,8 @@ export M4=$(M4)
 $(BISON) $(location hello_c.y) -o $@
 """,
     toolchains = [
-        "@rules_bison//bison:toolchain",
-        "@rules_m4//m4:toolchain",
+        "@rules_bison//bison:current_bison_toolchain",
+        "@rules_m4//m4:current_m4_toolchain",
     ],
 )
 

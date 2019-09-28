@@ -6,6 +6,6 @@ toolchain_type(
 )
 
 bison_toolchain_alias(
-    name = "toolchain",
+    name = "current_bison_toolchain",
     visibility = ["//visibility:public"],
 )

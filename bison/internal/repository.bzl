@@ -71,9 +71,16 @@ cc_library(
 """
 
 _BISON_BIN_BUILD = """
+filegroup(
+    name = "bison_runfiles",
+    srcs = [
+        "//:bison_data",
+        "@rules_m4//m4:current_m4_toolchain",
+    ],
+)
 cc_binary(
     name = "bison",
-    data = ["//:bison_data"],
+    data = [":bison_runfiles"],
     visibility = ["//visibility:public"],
     deps = ["//:bison_lib"],
 )
