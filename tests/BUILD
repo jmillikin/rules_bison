@@ -1,4 +1,5 @@
 load("@rules_bison//bison:bison.bzl", "bison_cc_library", "bison_java_library")
+load("@rules_bison//bison/internal:versions.bzl", "VERSION_URLS")
 
 cc_library(
     name = "hello_common",
@@ -75,4 +76,9 @@ cc_test(
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],
+)
+
+filegroup(
+    name = "all_versions",
+    srcs = ["@bison_v{}//bin:bison".format(version) for version in VERSION_URLS],
 )
