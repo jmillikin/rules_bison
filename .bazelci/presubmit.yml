@@ -1,0 +1,22 @@
+---
+validate_config: 1
+bazel: 1.0.0
+buildifier:
+  version: 0.29.0
+  warnings: "-module-docstring,-function-docstring,-bzl-visibility"
+tasks:
+  ubuntu_1804_gcc:
+    platform: ubuntu1804
+    environment:
+      CC: gcc
+    build_targets: ["//..."]
+    test_targets: ["//..."]
+  ubuntu_1804_clang:
+    platform: ubuntu1804
+    environment:
+      CC: clang
+    build_targets: ["//..."]
+    test_targets: ["//..."]
+  macos:
+    build_targets: ["//..."]
+    test_targets: ["//..."]
