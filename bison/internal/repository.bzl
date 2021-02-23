@@ -59,6 +59,7 @@ BISON_LIB_SRCS = glob(["bison-lib/*"])
 cc_library(
     name = "bison_lib",
     srcs = BISON_SRC_SRCS + BISON_LIB_SRCS,
+    copts = {EXTRA_COPTS},
     includes = [".", "bison-lib"],
     strip_include_prefix = "bison-lib",
     textual_hdrs = BISON_SCANNER_SRCS,
@@ -88,6 +89,8 @@ cc_binary(
 
 def _bison_repository(ctx):
     version = ctx.attr.version
+    extra_copts = ctx.attr.extra_copts
+
     _check_version(version)
     source = _VERSION_URLS[version]
 
@@ -97,10 +100,10 @@ def _bison_repository(ctx):
         stripPrefix = "bison-{}".format(version),
     )
 
-    _gnulib_overlay(ctx, bison_version = version)
+    _gnulib_overlay(ctx, bison_version = version, extra_copts = extra_copts)
 
     ctx.file("WORKSPACE", "workspace(name = {name})\n".format(name = repr(ctx.name)))
-    ctx.file("BUILD.bazel", _BISON_BUILD)
+    ctx.file("BUILD.bazel", _BISON_BUILD.format(EXTRA_COPTS = extra_copts))
     ctx.file("bin/BUILD.bazel", _BISON_BIN_BUILD)
 
     # A couple headers in lib/ get included with angle brackets. To avoid
@@ -113,6 +116,7 @@ bison_repository = repository_rule(
     _bison_repository,
     attrs = {
         "version": attr.string(mandatory = True),
+        "extra_copts": attr.string_list(),
         "_gnulib_build": attr.label(
             default = "@rules_bison//bison/internal:gnulib/gnulib.BUILD",
             allow_single_file = True,

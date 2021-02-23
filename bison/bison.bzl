@@ -25,13 +25,14 @@ bison_repository = _bison_repository
 def bison_toolchain(ctx):
     return ctx.toolchains[BISON_TOOLCHAIN_TYPE].bison_toolchain
 
-def bison_register_toolchains(version = DEFAULT_VERSION):
+def bison_register_toolchains(version = DEFAULT_VERSION, extra_copts = []):
     check_version(version)
     repo_name = "bison_v{}".format(version)
     if repo_name not in native.existing_rules().keys():
         bison_repository(
             name = repo_name,
             version = version,
+            extra_copts = extra_copts,
         )
     native.register_toolchains("@rules_bison//bison/toolchains:v{}".format(version))
 

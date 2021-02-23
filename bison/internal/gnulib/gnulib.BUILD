@@ -181,7 +181,7 @@ cc_library(
         "//conditions:default": _GNULIB_LINUX_SRCS,
     }),
     hdrs = _GNULIB_HDRS,
-    copts = _COPTS + ["-DHAVE_CONFIG_H"],
+    copts = _COPTS + ["-DHAVE_CONFIG_H"] + {GNULIB_EXTRA_COPTS},
     includes = ["lib"],
     textual_hdrs = [
         "lib/printf-frexp.c",
