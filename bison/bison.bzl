@@ -25,6 +25,7 @@ bison_repository = _bison_repository
 def bison_toolchain(ctx):
     return ctx.toolchains[BISON_TOOLCHAIN_TYPE].bison_toolchain
 
+# buildifier: disable=unnamed-macro
 def bison_register_toolchains(version = DEFAULT_VERSION, extra_copts = []):
     check_version(version)
     repo_name = "bison_v{}".format(version)

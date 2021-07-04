@@ -18,6 +18,7 @@ load("@rules_m4//m4:m4.bzl", "M4_TOOLCHAIN_TYPE", "m4_toolchain")
 
 BISON_TOOLCHAIN_TYPE = "@rules_bison//bison:toolchain_type"
 
+# buildifier: disable=provider-params
 BisonToolchainInfo = provider(fields = ["all_files", "bison_tool", "bison_env"])
 
 def _template_vars(toolchain):
