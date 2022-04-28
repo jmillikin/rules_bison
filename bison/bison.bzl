@@ -163,6 +163,12 @@ def _cc_library(ctx, bison_result):
         requested_features = ctx.attr.features,
     )
 
+    compile_kwargs = {}
+    if ctx.attr.include_prefix:
+        compile_kwargs["include_prefix"] = ctx.attr.include_prefix
+    if ctx.attr.strip_include_prefix:
+        compile_kwargs["strip_include_prefix"] = ctx.attr.strip_include_prefix
+
     (cc_compilation_context, cc_compilation_outputs) = cc_common.compile(
         name = ctx.attr.name,
         actions = ctx.actions,
@@ -171,6 +177,7 @@ def _cc_library(ctx, bison_result):
         srcs = [bison_result.source],
         public_hdrs = [bison_result.header],
         compilation_contexts = [cc_deps.compilation_context],
+        **compile_kwargs
     )
 
     (cc_linking_context, cc_linking_outputs) = cc_common.create_linking_context_from_compilation_outputs(
@@ -219,6 +226,8 @@ bison_cc_library = rule(
         "deps": attr.label_list(
             providers = [CcInfo],
         ),
+        "include_prefix": attr.string(),
+        "strip_include_prefix": attr.string(),
         "_cc_toolchain": attr.label(
             default = "@bazel_tools//tools/cpp:current_cc_toolchain",
         ),
