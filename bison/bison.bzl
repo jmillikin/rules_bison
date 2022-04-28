@@ -235,13 +235,21 @@ bison_cc_library = rule(
 def _bison_java_library(ctx):
     result = _bison_common(ctx, "java")
     out_jar = ctx.actions.declare_file("lib{}.jar".format(ctx.attr.name))
+
+    compile_kwargs = {}
+
+    java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo]
+    if not hasattr(java_toolchain, "java_runtime"):
+        host_javabase = ctx.attr._host_javabase[java_common.JavaRuntimeInfo]
+        compile_kwargs["host_javabase"] = host_javabase
+
     java_info = java_common.compile(
         ctx,
-        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
-        host_javabase = ctx.attr._host_javabase[java_common.JavaRuntimeInfo],
+        java_toolchain = java_toolchain,
         source_files = [result.source],
         output = out_jar,
         deps = ctx.attr.deps,
+        **compile_kwargs
     )
     return [
         DefaultInfo(files = depset(direct = [out_jar])),
