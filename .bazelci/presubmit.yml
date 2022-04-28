@@ -9,13 +9,19 @@ tasks:
     environment:
       CC: gcc
     build_targets: ["//..."]
-    test_targets: ["//..."]
+    test_targets:
+      - "//..."
+      - "//tests:all_versions"
   ubuntu_1804_clang:
     platform: ubuntu1804
     environment:
       CC: clang
     build_targets: ["//..."]
-    test_targets: ["//..."]
+    test_targets:
+      - "//..."
+      - "//tests:all_versions"
   macos:
     build_targets: ["//..."]
-    test_targets: ["//..."]
+    test_targets:
+      - "//..."
+      - "//tests:all_versions"

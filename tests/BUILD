@@ -80,5 +80,9 @@ cc_test(
 
 filegroup(
     name = "all_versions",
-    srcs = ["@bison_v{}//bin:bison".format(version) for version in VERSION_URLS],
+    srcs = [
+        "@bison_v{}//bin:bison".format(version)
+        for version in VERSION_URLS
+    ],
+    tags = ["manual"],
 )
