@@ -169,7 +169,7 @@ def _cc_library(ctx, bison_result):
         cc_toolchain = cc_toolchain,
         feature_configuration = cc_feature_configuration,
         srcs = [bison_result.source],
-        private_hdrs = [bison_result.header],
+        public_hdrs = [bison_result.header],
         compilation_contexts = [cc_deps.compilation_context],
     )
 
