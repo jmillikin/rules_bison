@@ -19,6 +19,7 @@ cc_library(
     hdrs = select({
         "@bazel_tools//src/conditions:darwin": glob(["config-darwin/*.h"]),
         "@bazel_tools//src/conditions:windows": glob(["config-windows/*.h"]),
+        "@bazel_tools//src/conditions:openbsd": glob(["config-openbsd/*.h"]),
         "//conditions:default": glob(["config-linux/*.h"]),
     }),
     includes = select({
@@ -27,6 +28,9 @@ cc_library(
         ],
         "@bazel_tools//src/conditions:windows": [
             "config-windows",
+        ],
+        "@bazel_tools//src/conditions:openbsd": [
+            "config-openbsd",
         ],
         "//conditions:default": [
             "config-linux",

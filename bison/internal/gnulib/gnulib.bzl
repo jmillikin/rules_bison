@@ -50,6 +50,7 @@ _CONFIG_FOOTER = """
 #include <stdint.h>
 #include <stdio.h>
 #include <wchar.h>
+#include <stdarg.h>
 
 struct obstack;
 int obstack_printf(struct obstack *obs, const char *format, ...);
@@ -83,6 +84,7 @@ def gnulib_overlay(ctx, bison_version, extra_copts = []):
         ("darwin", ctx.attr._gnulib_config_darwin_h),
         ("linux", ctx.attr._gnulib_config_linux_h),
         ("windows", ctx.attr._gnulib_config_windows_h),
+        ("openbsd", ctx.attr._gnulib_config_openbsd_h),
     ]:
         config_prefix = "gnulib/config-{}/".format(os)
 
@@ -99,6 +101,14 @@ def gnulib_overlay(ctx, bison_version, extra_copts = []):
         in_h = "gnulib/lib/{}.in.h".format(shim.replace("/", "_"))
         out_h = "gnulib/config-windows/shim-libc/gnulib/{}.h".format(shim)
         ctx.template(out_h, in_h, substitutions = _WINDOWS_AC_SUBST, executable = False)
+
+    if ctx.os.name == "openbsd":
+        ctx.template(
+            "gnulib/lib/alloca.h",
+            "gnulib/lib/alloca.in.h",
+            substitutions = {},
+            executable = False,
+        )
 
     # Older versions of Gnulib had a different layout for 'bitset'
     ctx.file("gnulib/lib/bitset_stats.h", '#include "gnulib/lib/bitset/stats.h"')

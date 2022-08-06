@@ -133,5 +133,9 @@ bison_repository = repository_rule(
             default = "//bison/internal:gnulib/config-windows.h",
             allow_single_file = True,
         ),
+        "_gnulib_config_openbsd_h": attr.label(
+            default = "//bison/internal:gnulib/config-openbsd.h",
+            allow_single_file = True,
+        ),
     },
 )
