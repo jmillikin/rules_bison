@@ -45,6 +45,7 @@ _CONFIG_FOOTER = """
 #include <stdint.h>
 #include <stdio.h>
 #include <wchar.h>
+#include <stdarg.h>
 
 struct obstack;
 int obstack_printf(struct obstack *obs, const char *format, ...);
@@ -78,6 +79,7 @@ def gnulib_overlay(ctx, bison_version, extra_copts = []):
         ("darwin", ctx.attr._gnulib_config_darwin_h),
         ("linux", ctx.attr._gnulib_config_linux_h),
         ("windows", ctx.attr._gnulib_config_windows_h),
+        ("openbsd", ctx.attr._gnulib_config_openbsd_h),
     ]:
         config_prefix = "gnulib/config-{}/".format(os)
 
@@ -142,6 +144,20 @@ def gnulib_overlay(ctx, bison_version, extra_copts = []):
     ctx.template("gnulib/lib/spawn-pipe.c", "gnulib/lib/spawn-pipe.c", substitutions = {
         "(const char **) environ": "NULL",
     }, executable = False)
+
+    # Some platforms have alloca() but not <alloca.h>.
+    ctx.file("gnulib/stub-alloca/alloca.h", "")
+
+    # Silence warning about unused variable when HAVE_SNPRINTF is defined 0.
+    ctx.template("gnulib/lib/vasnprintf.c", "gnulib/lib/vasnprintf.c", substitutions = {
+        "int flags = dp->flags;": "int flags = dp->flags; (void)flags;",
+    })
+
+    # Silence warning about comparison of `size_t` to `float`.
+    ctx.template("gnulib/lib/hash.c", "gnulib/lib/hash.c", substitutions = {
+        "(SIZE_MAX <= candidate)": "((float)(SIZE_MAX) <= candidate)",
+        "(SIZE_MAX <= new_candidate)": "((float)(SIZE_MAX) <= new_candidate)",
+    })
 
 _WINDOWS_STDLIB_SHIMS = [
     "alloca",

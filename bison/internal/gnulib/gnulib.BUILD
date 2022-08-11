@@ -19,6 +19,7 @@ cc_library(
     hdrs = select({
         "@bazel_tools//src/conditions:darwin": glob(["config-darwin/*.h"]),
         "@bazel_tools//src/conditions:windows": glob(["config-windows/*.h"]),
+        "@bazel_tools//src/conditions:openbsd": glob(["config-openbsd/*.h"]),
         "//conditions:default": glob(["config-linux/*.h"]),
     }),
     includes = select({
@@ -27,6 +28,9 @@ cc_library(
         ],
         "@bazel_tools//src/conditions:windows": [
             "config-windows",
+        ],
+        "@bazel_tools//src/conditions:openbsd": [
+            "config-openbsd",
         ],
         "//conditions:default": [
             "config-linux",
@@ -40,6 +44,12 @@ cc_library(
     hdrs = glob(["config-windows/shim-libc/**/*"]),
     includes = ["config-windows/shim-libc"],
     deps = [":config_h"],
+)
+
+cc_library(
+    name = "stub_alloca_h",
+    hdrs = ["stub-alloca/alloca.h"],
+    includes = ["stub-alloca"],
 )
 
 _GNULIB_HDRS = glob([
@@ -192,6 +202,7 @@ cc_library(
         "//:timevar_def",
     ] + select({
         "@bazel_tools//src/conditions:windows": [":gnulib_windows_shims"],
+        "@bazel_tools//src/conditions:openbsd": [":stub_alloca_h"],
         "//conditions:default": [],
     }),
 )
