@@ -22,12 +22,7 @@ load(
 _GNULIB_VERSION = "788db09a9f88abbef73c97e8d7291c40455336d8"
 _GNULIB_SHA256 = "4350696d531852118f3735a0e2d1091746388392c27d582f0cc241b6a39fe493"
 
-_URL_BASE = "github.com/jmillikin/rules_bison/releases/download/v0.1/bison-gnulib-{}.tar.xz".format(_GNULIB_VERSION)
-
-_GNULIB_URLS = [
-    "https://mirror.bazel.build/" + _URL_BASE,
-    "https://" + _URL_BASE,
-]
+_URL_BASE = "https://github.com/jmillikin/rules_bison/releases/download/v0.1/bison-gnulib-{}.tar.xz"
 
 _CONFIG_HEADER = """
 #include "gnulib/lib/config.in.h"
@@ -65,7 +60,7 @@ _CONFIGMAKE_H = """
 
 def gnulib_overlay(ctx, bison_version, extra_copts = []):
     ctx.download_and_extract(
-        url = _GNULIB_URLS,
+        url = [_URL_BASE.format(_GNULIB_VERSION)],
         sha256 = _GNULIB_SHA256,
         output = "gnulib",
         stripPrefix = "gnulib-" + _GNULIB_VERSION,

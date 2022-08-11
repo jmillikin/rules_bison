@@ -15,7 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 _MIRRORS = [
-    "https://mirror.bazel.build/ftp.gnu.org/gnu/bison/",
     "https://mirrors.kernel.org/gnu/bison/",
     "https://ftp.gnu.org/gnu/bison/",
 ]
