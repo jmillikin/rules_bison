@@ -153,6 +153,17 @@ def gnulib_overlay(ctx, bison_version, extra_copts = []):
     # Some platforms have alloca() but not <alloca.h>.
     ctx.file("gnulib/stub-alloca/alloca.h", "")
 
+    # Silence warning about unused variable when HAVE_SNPRINTF is defined 0.
+    ctx.template("gnulib/lib/vasnprintf.c", "gnulib/lib/vasnprintf.c", substitutions = {
+        "int flags = dp->flags;": "int flags = dp->flags; (void)flags;",
+    })
+
+    # Silence warning about comparison of `size_t` to `float`.
+    ctx.template("gnulib/lib/hash.c", "gnulib/lib/hash.c", substitutions = {
+        "(SIZE_MAX <= candidate)": "((float)(SIZE_MAX) <= candidate)",
+        "(SIZE_MAX <= new_candidate)": "((float)(SIZE_MAX) <= new_candidate)",
+    })
+
 _WINDOWS_STDLIB_SHIMS = [
     "alloca",
     "errno",
