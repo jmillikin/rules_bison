@@ -32,7 +32,6 @@ extern char **environ;
 #define GNULIB_STRERROR 1
 #define GNULIB_STRERROR_R_POSIX 1
 #define HAVE_ALLOCA 1
-#define HAVE_ALLOCA_H 1
 #define HAVE_CALLOC_POSIX 1
 #define HAVE_CANONICALIZE_FILE_NAME 1
 #define HAVE_CATGETS 1
@@ -69,11 +68,9 @@ extern char **environ;
 #define HAVE_DECL_WCWIDTH 1
 #define HAVE_DECL__SNPRINTF 0
 #define HAVE_DECL___ARGV 0
-#define HAVE_DECL___FPENDING 1
 #define HAVE_DUP2 1
 #define HAVE_ENVIRON_DECL 1
 #define HAVE_FCNTL 1
-#define HAVE_FEATURES_H 0
 #define HAVE_FREXPL_IN_LIBC 1
 #define HAVE_FREXP_IN_LIBC 1
 #define HAVE_GETCWD 1
@@ -134,7 +131,6 @@ extern char **environ;
 #define HAVE_SPAWN_H 1
 #define HAVE_STDINT_H 1
 #define HAVE_STDINT_H_WITH_UINTMAX 1
-#define HAVE_STDIO_EXT_H 0
 #define HAVE_STDLIB_H 1
 #define HAVE_STPCPY 1
 #define HAVE_STRCHRNUL 1
@@ -188,7 +184,6 @@ extern char **environ;
 #define REPLACE_PRINTF_POSIX 1
 #define REPLACE_VFPRINTF_POSIX 1
 #define STDC_HEADERS 1
-#define STRERROR_R_CHAR_P 1
 #define TYPEOF_STRUCT_STAT_ST_ATIM_IS_STRUCT_TIMESPEC 1
 #define USER_LABEL_PREFIX 
 #define USE_POSIX_THREADS 1
