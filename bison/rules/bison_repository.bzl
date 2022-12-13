@@ -170,5 +170,9 @@ bison_repository(
             default = Label("//bison/internal:gnulib/config-openbsd.h"),
             allow_single_file = True,
         ),
+        "_gnulib_config_freebsd_h": attr.label(
+            default = Label("//bison/internal:gnulib/config-freebsd.h"),
+            allow_single_file = True,
+        ),
     },
 )
