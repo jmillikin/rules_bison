@@ -137,5 +137,9 @@ bison_repository = repository_rule(
             default = "//bison/internal:gnulib/config-openbsd.h",
             allow_single_file = True,
         ),
+        "_gnulib_config_freebsd_h": attr.label(
+            default = "//bison/internal:gnulib/config-freebsd.h",
+            allow_single_file = True,
+        ),
     },
 )

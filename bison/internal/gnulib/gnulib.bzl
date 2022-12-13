@@ -80,6 +80,7 @@ def gnulib_overlay(ctx, bison_version, extra_copts = []):
         ("linux", ctx.attr._gnulib_config_linux_h),
         ("windows", ctx.attr._gnulib_config_windows_h),
         ("openbsd", ctx.attr._gnulib_config_openbsd_h),
+        ("freebsd", ctx.attr._gnulib_config_freebsd_h),
     ]:
         config_prefix = "gnulib/config-{}/".format(os)
 
@@ -147,6 +148,20 @@ def gnulib_overlay(ctx, bison_version, extra_copts = []):
 
     # Some platforms have alloca() but not <alloca.h>.
     ctx.file("gnulib/stub-alloca/alloca.h", "")
+
+    # Some platforms have alloca() but in <stdlib.h>
+    ctx.file(
+        "gnulib/maybe-alloca/alloca.h",
+        content =
+            """
+    #if defined(__GLIBC__)
+    #include_next <alloca.h>
+    #else
+    #include <stdlib.h>
+    #endif
+    """,
+        executable = False,
+    )
 
     # Silence warning about unused variable when HAVE_SNPRINTF is defined 0.
     ctx.template("gnulib/lib/vasnprintf.c", "gnulib/lib/vasnprintf.c", substitutions = {
