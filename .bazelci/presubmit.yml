@@ -48,6 +48,13 @@ tasks:
     test_targets:
       - "//..."
       - "//tests:all_versions"
+  windows:
+    build_flags:
+      - "--enable_runfiles"
+    build_targets: ["//..."]
+    test_targets:
+      - "//..."
+      - "//tests:all_versions"
   check_docs_match_stardoc:
     platform: ubuntu1804
     test_targets:
