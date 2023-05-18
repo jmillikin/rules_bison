@@ -92,16 +92,58 @@ def _bison_cc_library(ctx):
 
 bison_cc_library = rule(
     implementation = _bison_cc_library,
+    doc = """Generate a C/C++ library for a Bison parser.
+
+Verbose descriptions of the parser are available in output group `bison_report`.
+
+### Example
+
+```starlark
+load("@rules_bison//bison:bison.bzl", "bison_cc_library")
+
+bison_cc_library(
+    name = "hello_lib",
+    src = "hello.y",
+)
+
+cc_binary(
+    name = "hello",
+    srcs = ["hello_main.c"],
+    deps = [":hello_lib"],
+)
+```
+""",
     attrs = bison_action_attrs({
         "src": attr.label(
+            doc = """A Bison source file.
+
+The source's file extension will determine whether Bison operates in C or C++
+mode:
+  - Inputs with file extension `.y` generate outputs `{name}.c` and `{name}.h`.
+  - Inputs with file extension `.yy`, `.y++`, `.yxx`, or `.ypp` generate outputs
+    `{name}.cc` and `{name}.h`.
+""",
             mandatory = True,
             allow_single_file = [".y", ".yy", ".y++", ".yxx", ".ypp"],
         ),
         "deps": attr.label_list(
+            doc = "A list of other C/C++ libraries to depend on.",
             providers = [CcInfo],
         ),
-        "include_prefix": attr.string(),
-        "strip_include_prefix": attr.string(),
+        "include_prefix": attr.string(
+            doc = """A prefix to add to the path of the generated header.
+
+See [`cc_library.include_prefix`](https://bazel.build/reference/be/c-cpp#cc_library.include_prefix)
+for more details.
+""",
+        ),
+        "strip_include_prefix": attr.string(
+            doc = """A prefix to strip from the path of the generated header.
+
+See [`cc_library.strip_include_prefix`](https://bazel.build/reference/be/c-cpp#cc_library.strip_include_prefix)
+for more details.
+""",
+        ),
         "_cc_toolchain": attr.label(
             default = "@bazel_tools//tools/cpp:current_cc_toolchain",
         ),

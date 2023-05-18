@@ -36,8 +36,19 @@ BISON_ACTION_TOOLCHAINS = [
 ]
 
 _BISON_ACTION_ATTRS = {
-    "bison_options": attr.string_list(),
+    "bison_options": attr.string_list(
+        doc = """
+Additional options to pass to the `bison` command.
+
+These will be added to the command args immediately before the source file.
+""",
+    ),
     "skeleton": attr.label(
+        doc = """Specify the skeleton to use.
+
+This file is used as a template for rendering the generated parser. See the
+Bison documentation regarding the `%skeleton` directive for more details.
+""",
         allow_single_file = True,
     ),
     "_m4_deny_shell": attr.label(

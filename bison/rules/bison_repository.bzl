@@ -120,12 +120,31 @@ def _bison_repository(ctx):
 
 bison_repository = repository_rule(
     implementation = _bison_repository,
+    doc = """
+Repository rule for GNU Bison.
+
+The resulting repository will have a `//bin:bison` executable target.
+
+### Example
+
+```starlark
+load("@rules_bison//bison:bison.bzl", "bison_repository")
+
+bison_repository(
+    name = "bison_v3.3.2",
+    version = "3.3.2",
+)
+```
+""",
     attrs = {
         "version": attr.string(
+            doc = "A supported version of GNU Bison.",
             mandatory = True,
             values = sorted(VERSION_URLS),
         ),
-        "extra_copts": attr.string_list(),
+        "extra_copts": attr.string_list(
+            doc = "Additional C compiler options to use when building GNU Bison.",
+        ),
         "_gnulib_build": attr.label(
             default = Label("//bison/internal:gnulib/gnulib.BUILD"),
             allow_single_file = True,

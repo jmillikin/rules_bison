@@ -1,5 +1,5 @@
 filegroup(
-    name = "bzl_srcs",
-    srcs = glob(["*.bzl"]),
+    name = "docs",
+    srcs = glob(["*.md"]),
     visibility = ["//:__subpackages__"],
 )

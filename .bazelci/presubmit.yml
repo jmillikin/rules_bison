@@ -25,3 +25,7 @@ tasks:
     test_targets:
       - "//..."
       - "//tests:all_versions"
+  check_docs_match_stardoc:
+    platform: ubuntu1804
+    test_targets:
+      - "//tests:docs_test"

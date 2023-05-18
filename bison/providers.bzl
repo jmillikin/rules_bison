@@ -16,5 +16,15 @@
 
 """Providers produced by rules_bison rules."""
 
-# buildifier: disable=provider-params
-BisonToolchainInfo = provider(fields = ["all_files", "bison_tool", "bison_env"])
+BisonToolchainInfo = provider(
+    doc = "Provider for a Bison toolchain.",
+    fields = {
+        "all_files": """A `depset` containing all files comprising this
+Bison toolchain.
+""",
+        "bison_tool": "A `FilesToRunProvider` for the `bison` binary.",
+        "bison_env": """
+Additional environment variables to set when running `bison_tool`.
+""",
+    },
+)

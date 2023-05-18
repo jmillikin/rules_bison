@@ -19,4 +19,13 @@
 BISON_TOOLCHAIN_TYPE = "@rules_bison//bison:toolchain_type"
 
 def bison_toolchain(ctx):
+    """Returns the current [`BisonToolchainInfo`](#BisonToolchainInfo).
+
+    Args:
+        ctx: A rule context, where the rule has a toolchain dependency
+          on [`BISON_TOOLCHAIN_TYPE`](#BISON_TOOLCHAIN_TYPE).
+
+    Returns:
+        A [`BisonToolchainInfo`](#BisonToolchainInfo).
+    """
     return ctx.toolchains[BISON_TOOLCHAIN_TYPE].bison_toolchain

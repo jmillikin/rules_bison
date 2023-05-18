@@ -50,12 +50,36 @@ def _bison_java_library(ctx):
 
 bison_java_library = rule(
     implementation = _bison_java_library,
+    doc = """Generate a Java library for a Bison parser.
+
+Verbose descriptions of the parser are available in output group `bison_report`.
+
+### Example
+
+```starlark
+load("@rules_bison//bison:bison.bzl", "bison_java_library")
+
+bison_java_library(
+    name = "HelloParser",
+    src = "hello.y",
+)
+
+java_binary(
+    name = "HelloMain",
+    srcs = ["HelloMain.java"],
+    main_class = "HelloMain",
+    deps = [":HelloParser"],
+)
+```
+""",
     attrs = bison_action_attrs({
         "src": attr.label(
+            doc = "A Bison source file.",
             mandatory = True,
             allow_single_file = [".y"],
         ),
         "deps": attr.label_list(
+            doc = "A list of other Java libraries to depend on.",
             providers = [JavaInfo],
         ),
         "_host_javabase": attr.label(

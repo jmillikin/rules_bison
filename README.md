@@ -1,68 +1,95 @@
 # Bazel build rules for GNU Bison
 
-## Overview
+This Bazel ruleset allows [GNU Bison] to be integrated into a Bazel build. It
+can be used to generate parsers in C, C++, or Java.
+
+API reference: [docs/rules_bison.md](docs/rules_bison.md)
+
+[GNU Bison]: https://www.gnu.org/software/bison/
+
+## Setup
+
+### As a workspace dependency
 
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_m4",
-    sha256 = "b0309baacfd1b736ed82dc2bb27b0ec38455a31a3d5d20f8d05e831ebeef1a8e",
-    urls = ["https://github.com/jmillikin/rules_m4/releases/download/v0.2.2/rules_m4-v0.2.2.tar.xz"],
+    sha256 = "10ce41f150ccfbfddc9d2394ee680eb984dc8a3dfea613afd013cfb22ea7445c",
+    urls = ["https://github.com/jmillikin/rules_m4/releases/download/v0.2.3/rules_m4-v0.2.3.tar.xz"],
 )
 
 load("@rules_m4//m4:m4.bzl", "m4_register_toolchains")
-m4_register_toolchains()
+
+m4_register_toolchains(version = "1.4.18")
 
 http_archive(
     name = "rules_bison",
+    # Obtain the package checksum from the release page:
+    # https://github.com/jmillikin/rules_bison/releases/tag/v0.2.1
+    sha256 = "",
     urls = ["https://github.com/jmillikin/rules_bison/releases/download/v0.2.1/rules_bison-v0.2.1.tar.xz"],
-    sha256 = "9577455967bfcf52f9167274063ebb74696cb0fd576e4226e14ed23c5d67a693",
 )
 
 load("@rules_bison//bison:bison.bzl", "bison_register_toolchains")
-bison_register_toolchains()
+
+bison_register_toolchains(version = "3.3.2")
 ```
+
+## Examples
+
+Integrating Bison into a C/C++ dependency graph:
 
 ```python
 load("@rules_bison//bison:bison.bzl", "bison_cc_library")
+
 bison_cc_library(
-    name = "hello",
+    name = "hello_parser",
     src = "hello.y",
 )
+
 cc_binary(
-    name = "hello_bin",
-    deps = [":hello"],
+    name = "hello",
+    deps = [":hello_parser"],
 )
 ```
+
+Integrating Bison into a Java dependency graph:
 
 ```python
 load("@rules_bison//bison:bison.bzl", "bison_java_library")
+
 bison_java_library(
-    name = "HelloJavaParser",
-    src = "hello_java.y",
+    name = "HelloParser",
+    src = "hello.y",
 )
+
 java_binary(
-    name = "HelloJava",
-    srcs = ["HelloJava.java"],
-    main_class = "HelloJava",
-    deps = [":HelloJavaParser"],
+    name = "Hello",
+    srcs = ["Hello.java"],
+    main_class = "Hello",
+    deps = [":HelloParser"],
 )
 ```
 
-## Other Rules
+Generating `.c` / `.h` / `.cc` source files (not as a `CcInfo`):
 
 ```python
 load("@rules_bison//bison:bison.bzl", "bison")
+
 bison(
-    name = "hello_bin_srcs",
+    name = "hello_parser_srcs",
     src = "hello.y",
 )
+
 cc_binary(
-    name = "hello_bin",
-    srcs = [":hello_bin_srcs"],
+    name = "hello",
+    srcs = [":hello_parser_srcs"],
 )
 ```
+
+Running Bison in a `genrule`:
 
 ```python
 genrule(
@@ -77,7 +104,7 @@ genrule(
 )
 ```
 
-## Toolchains
+Writing a custom rule that depends on Bison as a toolchain:
 
 ```python
 load("@rules_bison//bison:bison.bzl", "BISON_TOOLCHAIN_TYPE", "bison_toolchain")
@@ -92,7 +119,7 @@ def _my_rule(ctx):
     )
 
 my_rule = rule(
-    _my_rule,
+    implementation = _my_rule,
     toolchains = [
         BISON_TOOLCHAIN_TYPE,
         M4_TOOLCHAIN_TYPE,

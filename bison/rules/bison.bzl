@@ -36,8 +36,33 @@ def _bison(ctx):
 
 bison = rule(
     implementation = _bison,
+    doc = """Generate source code for a Bison parser.
+
+This rule exists for special cases where the build needs to perform further
+modification of the generated `.c` / `.h` before compilation. Most users
+will find the [`bison_cc_library`](#bison_cc_library) rule more convenient.
+
+### Example
+
+```starlark
+load("@rules_bison//bison:bison.bzl", "bison")
+
+bison(
+    name = "hello",
+    src = "hello.y",
+)
+```
+""",
     attrs = bison_action_attrs({
         "src": attr.label(
+            doc = """A Bison source file.
+
+The source's file extension will determine whether Bison operates in C or C++
+mode:
+  - Inputs with file extension `.y` generate outputs `{name}.c` and `{name}.h`.
+  - Inputs with file extension `.yy`, `.y++`, `.yxx`, or `.ypp` generate outputs
+    `{name}.cc` and `{name}.h`.
+""",
             mandatory = True,
             allow_single_file = [".y", ".yy", ".y++", ".yxx", ".ypp"],
         ),

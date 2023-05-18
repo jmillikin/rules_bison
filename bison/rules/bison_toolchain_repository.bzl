@@ -48,8 +48,42 @@ def _bison_toolchain_repository(ctx):
 
 bison_toolchain_repository = repository_rule(
     implementation = _bison_toolchain_repository,
+    doc = """
+Toolchain repository rule for Bison toolchains.
+
+Toolchain repositories add a layer of indirection so that Bazel can resolve
+toolchains without downloading additional dependencies.
+
+The resulting repository will have the following targets:
+- `//bin:bison` (an alias into the underlying [`bison_repository`]
+  (#bison_repository))
+- `//:toolchain`, which can be registered with Bazel.
+
+### Example
+
+```starlark
+load(
+    "@rules_bison//bison:bison.bzl",
+    "bison_repository",
+    "bison_toolchain_repository",
+)
+
+bison_repository(
+    name = "bison_v3.3.2",
+    version = "3.3.2",
+)
+
+bison_toolchain_repository(
+    name = "bison",
+    bison_repository = "@bison_v3.3.2",
+)
+
+register_toolchains("@bison//:toolchain")
+```
+""",
     attrs = {
         "bison_repository": attr.string(
+            doc = "The name of a [`bison_repository`](#bison_repository).",
             mandatory = True,
         ),
     },
