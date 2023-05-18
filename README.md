@@ -9,6 +9,37 @@ API reference: [docs/rules_bison.md](docs/rules_bison.md)
 
 ## Setup
 
+### As a module dependency (bzlmod)
+
+Add the following to your `MODULE.bazel`:
+
+```python
+bazel_dep(name = "rules_bison", version = "0.2.1")
+```
+
+To specify a version or build with additional C compiler options, use the
+`bison_repository_ext` module extension:
+
+```python
+bison = use_extension(
+    "@rules_bison//bison/extensions:bison_repository_ext.bzl",
+    "bison_repository_ext",
+)
+bison.repository(
+    name = "bison",
+    version = "3.3.2",
+    extra_copts = ["-O3"],
+)
+use_repo(bison, "bison")
+register_toolchains("@bison//:toolchain")
+```
+
+Note that repository names registered with a given bzlmod module extension must
+be unique within the scope of that extension. See the [Bazel module extensions]
+documentation for more details.
+
+[Bazel module extensions]: https://bazel.build/external/extension
+
 ### As a workspace dependency
 
 ```python

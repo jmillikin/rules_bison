@@ -6,6 +6,7 @@ load(
 filegroup(
     name = "bzl_srcs",
     srcs = glob(["*.bzl"]) + [
+        "//bison/extensions:bzl_srcs",
         "//bison/internal:bzl_srcs",
         "//bison/rules:bzl_srcs",
     ],
