@@ -175,7 +175,7 @@ _COPTS = select({
         # C4116: unnamed type definition in parentheses
         "/wd4116",
     ],
-    "//conditions:default": [],
+    "//conditions:default": ["-std=c99"],
 })
 
 cc_library(

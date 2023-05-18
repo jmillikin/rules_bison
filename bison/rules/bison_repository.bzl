@@ -51,10 +51,15 @@ BISON_SRC_SRCS = glob(
 
 BISON_LIB_SRCS = glob(["bison-lib/*"])
 
+BISON_COPTS = select({{
+    "@bazel_tools//src/conditions:windows_msvc": [],
+    "//conditions:default": ["-std=c99"],
+}})
+
 cc_library(
     name = "bison_lib",
     srcs = BISON_SRC_SRCS + BISON_LIB_SRCS,
-    copts = {EXTRA_COPTS},
+    copts = BISON_COPTS + {EXTRA_COPTS},
     includes = [".", "bison-lib"],
     strip_include_prefix = "bison-lib",
     textual_hdrs = BISON_SCANNER_SRCS,

@@ -4,6 +4,29 @@ buildifier:
   version: 6.1.2
   warnings: "-attr-cfg"
 tasks:
+  centos7:
+    # Verify `bison` itself can be built, but don't try to run the full test
+    # suite.
+    #
+    # BazelCI platform "centos7" uses GCC 4.8.5, which is too old to build
+    # googletest.
+    environment:
+      CC: gcc
+    build_targets:
+      - "//tests:genrule_test"
+      - "//tests:hello_c_bin"
+      - "//tests:hello_cc_bin"
+      - "//tests:HelloJavaMain_deploy.jar"
+  centos7_gcc:
+    # BazelCI platform "centos7_java11_devtoolset10" uses GCC 10, which is
+    # modern enough to build googletest.
+    platform: centos7_java11_devtoolset10
+    environment:
+      CC: gcc
+    build_targets: ["//..."]
+    test_targets:
+      - "//..."
+      - "//tests:all_versions"
   ubuntu_1804_gcc:
     platform: ubuntu1804
     environment:
