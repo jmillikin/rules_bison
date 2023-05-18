@@ -14,6 +14,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""Helpers and shims for building the GNU anti-portability library."""
+
 load("//bison/internal:versions.bzl", "VERSION_URLS")
 
 _GNULIB_VERSION = "788db09a9f88abbef73c97e8d7291c40455336d8"
@@ -57,6 +59,14 @@ _CONFIGMAKE_H = """
 """
 
 def gnulib_overlay(ctx, bison_version, extra_copts = []):
+    """Download the gnulib overlay and apply compatibility patches.
+
+    Args:
+        ctx: A `repository_ctx`.
+        bison_version: Which version of GNU Bison is being built.
+        extra_copts: Additional C compiler options to use when building gnulib.
+
+    """
     ctx.download_and_extract(
         url = [_URL_BASE.format(_GNULIB_VERSION)],
         sha256 = _GNULIB_SHA256,

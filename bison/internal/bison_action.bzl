@@ -52,6 +52,18 @@ def bison_action_attrs(rule_attrs):
     return rule_attrs
 
 def bison_action(ctx, language):
+    """Run Bison as a build action.
+
+    The action's attributes must have been defined with `bison_action_attrs()`.
+
+    Args:
+        ctx: A rule context.
+        language: Value of Bison's `--language=` flag.
+
+    Returns:
+        A struct with `source` (generated source file), `header` (generated
+        header file), `reports` (optional reports), and `outs` (depset of all generated outputs).
+    """
     bison = bison_toolchain(ctx)
 
     out_src_ext = _SRC_EXT[language]

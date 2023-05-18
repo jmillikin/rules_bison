@@ -1,4 +1,10 @@
-load("//bison:bison.bzl", "bison_cc_library", "bison_java_library")
+load(
+    "//bison:bison.bzl",
+    "bison_cc_library",
+    "bison_java_library",
+)
+
+# buildifier: disable=bzl-visibility
 load("//bison/internal:versions.bzl", "VERSION_URLS")
 
 cc_library(

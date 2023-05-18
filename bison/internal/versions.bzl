@@ -14,6 +14,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""Supported versions of GNU Bison."""
+
 _MIRRORS = [
     "https://mirrors.kernel.org/gnu/bison/",
     "https://ftp.gnu.org/gnu/bison/",

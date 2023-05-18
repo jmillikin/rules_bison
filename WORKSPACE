@@ -13,6 +13,8 @@ load("@rules_m4//m4:m4.bzl", "m4_register_toolchains")
 m4_register_toolchains()
 
 load("//bison:bison.bzl", "bison_register_toolchains", "bison_repository")
+
+# buildifier: disable=bzl-visibility
 load("//bison/internal:versions.bzl", "VERSION_URLS")
 
 bison_register_toolchains()

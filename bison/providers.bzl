@@ -14,5 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""Providers produced by rules_bison rules."""
+
 # buildifier: disable=provider-params
 BisonToolchainInfo = provider(fields = ["all_files", "bison_tool", "bison_env"])

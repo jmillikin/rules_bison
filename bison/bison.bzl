@@ -57,6 +57,15 @@ BisonToolchainInfo = _BisonToolchainInfo
 
 # buildifier: disable=unnamed-macro
 def bison_register_toolchains(version = DEFAULT_VERSION, extra_copts = []):
+    """A helper function for Bison toolchains registration.
+
+    This workspace macro will create a [`bison_repository`](#bison_repository)
+    named `bison_v{version}` and register it as a Bazel toolchain.
+
+    Args:
+        version: A supported version of Bison.
+        extra_copts: Additional C compiler options to use when building Bison.
+    """
     check_version(version)
     repo_name = "bison_v{}".format(version)
     if repo_name not in native.existing_rules().keys():
