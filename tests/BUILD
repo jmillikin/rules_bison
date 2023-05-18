@@ -4,9 +4,6 @@ load(
     "bison_java_library",
 )
 
-# buildifier: disable=bzl-visibility
-load("//bison/internal:versions.bzl", "VERSION_URLS")
-
 cc_library(
     name = "hello_common",
     srcs = ["hello_common.c"],
@@ -88,11 +85,8 @@ cc_test(
     ],
 )
 
-filegroup(
+alias(
     name = "all_versions",
-    srcs = [
-        "@bison_v{}//bin:bison".format(version)
-        for version in VERSION_URLS
-    ],
+    actual = "@rules_bison_testutil//:all_versions",
     tags = ["manual"],
 )

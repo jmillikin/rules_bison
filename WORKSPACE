@@ -15,7 +15,12 @@ m4_register_toolchains()
 load("//bison:bison.bzl", "bison_register_toolchains", "bison_repository")
 
 # buildifier: disable=bzl-visibility
+load("//bison/internal:testutil.bzl", "rules_bison_testutil")
+
+# buildifier: disable=bzl-visibility
 load("//bison/internal:versions.bzl", "VERSION_URLS")
+
+rules_bison_testutil(name = "rules_bison_testutil")
 
 bison_register_toolchains()
 
