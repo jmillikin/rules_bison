@@ -14,7 +14,7 @@ API reference: [docs/rules_bison.md](docs/rules_bison.md)
 Add the following to your `MODULE.bazel`:
 
 ```python
-bazel_dep(name = "rules_bison", version = "0.2.1")
+bazel_dep(name = "rules_bison", version = "0.2.2")
 ```
 
 To specify a version or build with additional C compiler options, use the
@@ -58,9 +58,9 @@ m4_register_toolchains(version = "1.4.18")
 http_archive(
     name = "rules_bison",
     # Obtain the package checksum from the release page:
-    # https://github.com/jmillikin/rules_bison/releases/tag/v0.2.1
+    # https://github.com/jmillikin/rules_bison/releases/tag/v0.2.2
     sha256 = "",
-    urls = ["https://github.com/jmillikin/rules_bison/releases/download/v0.2.1/rules_bison-v0.2.1.tar.xz"],
+    urls = ["https://github.com/jmillikin/rules_bison/releases/download/v0.2.2/rules_bison-v0.2.2.tar.xz"],
 )
 
 load("@rules_bison//bison:bison.bzl", "bison_register_toolchains")
