@@ -14,10 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load(
-    "@rules_bison//bison/internal:versions.bzl",
-    _VERSION_URLS = "VERSION_URLS",
-)
+load("//bison/internal:versions.bzl", "VERSION_URLS")
 
 _GNULIB_VERSION = "788db09a9f88abbef73c97e8d7291c40455336d8"
 _GNULIB_SHA256 = "4350696d531852118f3735a0e2d1091746388392c27d582f0cc241b6a39fe493"
@@ -72,7 +69,7 @@ def gnulib_overlay(ctx, bison_version, extra_copts = []):
 
     config_header = _CONFIG_HEADER.format(
         BISON_VERSION = bison_version,
-        BISON_COPYRIGHT_YEAR = _VERSION_URLS[bison_version]["copyright_year"],
+        BISON_COPYRIGHT_YEAR = VERSION_URLS[bison_version]["copyright_year"],
     )
 
     for (os, template) in [

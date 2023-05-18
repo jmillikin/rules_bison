@@ -12,8 +12,8 @@ load("@rules_m4//m4:m4.bzl", "m4_register_toolchains")
 
 m4_register_toolchains()
 
-load("@rules_bison//bison:bison.bzl", "bison_register_toolchains", "bison_repository")
-load("@rules_bison//bison/internal:versions.bzl", "VERSION_URLS")
+load("//bison:bison.bzl", "bison_register_toolchains", "bison_repository")
+load("//bison/internal:versions.bzl", "VERSION_URLS")
 
 bison_register_toolchains()
 

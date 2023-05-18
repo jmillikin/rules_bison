@@ -1,5 +1,5 @@
-load("@rules_bison//bison:bison.bzl", "bison_cc_library", "bison_java_library")
-load("@rules_bison//bison/internal:versions.bzl", "VERSION_URLS")
+load("//bison:bison.bzl", "bison_cc_library", "bison_java_library")
+load("//bison/internal:versions.bzl", "VERSION_URLS")
 
 cc_library(
     name = "hello_common",
@@ -16,7 +16,7 @@ export M4=$(M4)
 $(BISON) $(location hello_c.y) -o $@
 """,
     toolchains = [
-        "@rules_bison//bison:current_bison_toolchain",
+        "//bison:current_bison_toolchain",
         "@rules_m4//m4:current_m4_toolchain",
     ],
 )

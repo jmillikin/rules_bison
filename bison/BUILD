@@ -1,4 +1,7 @@
-load("@rules_bison//bison/internal:toolchain.bzl", "bison_toolchain_alias")
+load(
+    "//bison/internal:toolchain_alias.bzl",
+    "bison_toolchain_alias",
+)
 
 toolchain_type(
     name = "toolchain_type",

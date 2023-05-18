@@ -14,12 +14,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load("@rules_m4//m4:m4.bzl", "M4_TOOLCHAIN_TYPE", "m4_toolchain")
+load("//bison:providers.bzl", "BisonToolchainInfo")
 
-BISON_TOOLCHAIN_TYPE = "@rules_bison//bison:toolchain_type"
-
-# buildifier: disable=provider-params
-BisonToolchainInfo = provider(fields = ["all_files", "bison_tool", "bison_env"])
+_M4_TOOLCHAIN_TYPE = "@rules_m4//m4:toolchain_type"
 
 def _template_vars(toolchain):
     return platform_common.TemplateVariableInfo({
@@ -27,7 +24,7 @@ def _template_vars(toolchain):
     })
 
 def _bison_toolchain_info(ctx):
-    m4 = m4_toolchain(ctx)
+    m4 = ctx.toolchains[_M4_TOOLCHAIN_TYPE].m4_toolchain
     bison_runfiles = ctx.attr.bison_tool[DefaultInfo].default_runfiles.files
 
     bison_env = dict(m4.m4_env)
@@ -72,21 +69,5 @@ bison_toolchain_info = rule(
         platform_common.ToolchainInfo,
         platform_common.TemplateVariableInfo,
     ],
-    toolchains = [M4_TOOLCHAIN_TYPE],
-)
-
-def _bison_toolchain_alias(ctx):
-    toolchain = ctx.toolchains[BISON_TOOLCHAIN_TYPE].bison_toolchain
-    return [
-        DefaultInfo(files = toolchain.all_files),
-        _template_vars(toolchain),
-    ]
-
-bison_toolchain_alias = rule(
-    _bison_toolchain_alias,
-    toolchains = [BISON_TOOLCHAIN_TYPE],
-    provides = [
-        DefaultInfo,
-        platform_common.TemplateVariableInfo,
-    ],
+    toolchains = [_M4_TOOLCHAIN_TYPE],
 )

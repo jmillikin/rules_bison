@@ -14,15 +14,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load(
-    "@rules_bison//bison/internal:versions.bzl",
-    _VERSION_URLS = "VERSION_URLS",
-    _check_version = "check_version",
-)
-load(
-    "@rules_bison//bison/internal:gnulib/gnulib.bzl",
-    _gnulib_overlay = "gnulib_overlay",
-)
+"""Definition of the `bison_repository` repository rule."""
+
+load("//bison/internal:versions.bzl", "VERSION_URLS")
+load("//bison/internal:gnulib/gnulib.bzl", "gnulib_overlay")
 
 _BISON_LIB_HDRS = [
     "get-errno.c",
@@ -90,9 +85,7 @@ cc_binary(
 def _bison_repository(ctx):
     version = ctx.attr.version
     extra_copts = ctx.attr.extra_copts
-
-    _check_version(version)
-    source = _VERSION_URLS[version]
+    source = VERSION_URLS[version]
 
     ctx.download_and_extract(
         url = source["urls"],
@@ -100,9 +93,11 @@ def _bison_repository(ctx):
         stripPrefix = "bison-{}".format(version),
     )
 
-    _gnulib_overlay(ctx, bison_version = version, extra_copts = extra_copts)
+    gnulib_overlay(ctx, bison_version = version, extra_copts = extra_copts)
 
-    ctx.file("WORKSPACE", "workspace(name = {name})\n".format(name = repr(ctx.name)))
+    ctx.file("WORKSPACE", "workspace(name = {name})\n".format(
+        name = repr(ctx.name),
+    ))
     ctx.file("BUILD.bazel", _BISON_BUILD.format(EXTRA_COPTS = extra_copts))
     ctx.file("bin/BUILD.bazel", _BISON_BIN_BUILD)
 
@@ -113,28 +108,31 @@ def _bison_repository(ctx):
         ctx.symlink("lib/" + hdr, "bison-lib/" + hdr)
 
 bison_repository = repository_rule(
-    _bison_repository,
+    implementation = _bison_repository,
     attrs = {
-        "version": attr.string(mandatory = True),
+        "version": attr.string(
+            mandatory = True,
+            values = sorted(VERSION_URLS),
+        ),
         "extra_copts": attr.string_list(),
         "_gnulib_build": attr.label(
-            default = "@rules_bison//bison/internal:gnulib/gnulib.BUILD",
+            default = Label("//bison/internal:gnulib/gnulib.BUILD"),
             allow_single_file = True,
         ),
         "_gnulib_config_darwin_h": attr.label(
-            default = "//bison/internal:gnulib/config-darwin.h",
+            default = Label("//bison/internal:gnulib/config-darwin.h"),
             allow_single_file = True,
         ),
         "_gnulib_config_linux_h": attr.label(
-            default = "//bison/internal:gnulib/config-linux.h",
+            default = Label("//bison/internal:gnulib/config-linux.h"),
             allow_single_file = True,
         ),
         "_gnulib_config_windows_h": attr.label(
-            default = "//bison/internal:gnulib/config-windows.h",
+            default = Label("//bison/internal:gnulib/config-windows.h"),
             allow_single_file = True,
         ),
         "_gnulib_config_openbsd_h": attr.label(
-            default = "//bison/internal:gnulib/config-openbsd.h",
+            default = Label("//bison/internal:gnulib/config-openbsd.h"),
             allow_single_file = True,
         ),
     },
