@@ -46,6 +46,10 @@ load(
     "//bison/rules:bison_repository.bzl",
     _bison_repository = "bison_repository",
 )
+load(
+    "//bison/rules:bison_toolchain_repository.bzl",
+    _bison_toolchain_repository = "bison_toolchain_repository",
+)
 
 BISON_TOOLCHAIN_TYPE = _BISON_TOOLCHAIN_TYPE
 bison = _bison
@@ -53,6 +57,7 @@ bison_cc_library = _bison_cc_library
 bison_java_library = _bison_java_library
 bison_toolchain = _bison_toolchain
 bison_repository = _bison_repository
+bison_toolchain_repository = _bison_toolchain_repository
 BisonToolchainInfo = _BisonToolchainInfo
 
 # buildifier: disable=unnamed-macro

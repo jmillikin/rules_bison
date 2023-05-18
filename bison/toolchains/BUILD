@@ -3,6 +3,6 @@ load("//bison/internal:versions.bzl", "VERSION_URLS")
 
 [toolchain(
     name = "v{}".format(version),
-    toolchain = "//bison/internal:toolchain_v{}".format(version),
+    toolchain = "@bison_v{}//rules_bison_internal:toolchain_info".format(version),
     toolchain_type = BISON_TOOLCHAIN_TYPE,
 ) for version in VERSION_URLS]

@@ -82,6 +82,16 @@ cc_binary(
 )
 """
 
+_RULES_BISON_INTERNAL_BUILD = """
+load("@rules_bison//bison/internal:toolchain_info.bzl", "bison_toolchain_info")
+
+bison_toolchain_info(
+    name = "toolchain_info",
+    bison_tool = "//bin:bison",
+    visibility = ["//visibility:public"],
+)
+"""
+
 def _bison_repository(ctx):
     version = ctx.attr.version
     extra_copts = ctx.attr.extra_copts
@@ -100,6 +110,7 @@ def _bison_repository(ctx):
     ))
     ctx.file("BUILD.bazel", _BISON_BUILD.format(EXTRA_COPTS = extra_copts))
     ctx.file("bin/BUILD.bazel", _BISON_BIN_BUILD)
+    ctx.file("rules_bison_internal/BUILD.bazel", _RULES_BISON_INTERNAL_BUILD)
 
     # A couple headers in lib/ get included with angle brackets. To avoid
     # putting all of lib/ in -isystem (which pollutes the gnulib build on
