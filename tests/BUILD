@@ -74,10 +74,7 @@ cc_test(
     name = "bison_test",
     srcs = ["bison_test.cc"],
     data = [":testdata"],
-    linkstatic = select({
-        "@bazel_tools//src/conditions:openbsd": True,
-        "//conditions:default": None,
-    }),
+    linkstatic = True,
     deps = [
         "@bazel_tools//tools/cpp/runfiles",
         "@com_google_googletest//:gtest",
