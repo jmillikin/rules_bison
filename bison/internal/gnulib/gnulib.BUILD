@@ -118,7 +118,7 @@ _GNULIB_SRCS = glob([
     "lib/xmalloc.c",
     "lib/xmemdup0.c",
     "lib/xstrndup.c",
-])
+], allow_empty = True)
 
 _GNULIB_DARWIN_SRCS = []
 

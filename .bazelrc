@@ -1,0 +1,3 @@
+# Bazel configuration flags
+
+common --incompatible_disallow_empty_glob=true
