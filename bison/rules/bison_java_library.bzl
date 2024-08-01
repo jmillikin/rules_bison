@@ -95,5 +95,7 @@ java_binary(
         JavaInfo,
         OutputGroupInfo,
     ],
-    toolchains = BISON_ACTION_TOOLCHAINS,
+    toolchains = BISON_ACTION_TOOLCHAINS + [
+        "@bazel_tools//tools/jdk:toolchain_type",
+    ],
 )
