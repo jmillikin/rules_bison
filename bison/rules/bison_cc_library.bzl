@@ -54,6 +54,16 @@ def _cc_library(ctx, bison_result):
         **compile_kwargs
     )
 
+    cc_supports_dynamic_linker = cc_common.is_enabled(
+        feature_configuration = cc_feature_configuration,
+        feature_name = "supports_dynamic_linker",
+    )
+
+    allow_dynamic_library = all([
+        cc_supports_dynamic_linker,
+        not ctx.attr.linkstatic,
+    ])
+
     (cc_linking_context, cc_linking_outputs) = cc_common.create_linking_context_from_compilation_outputs(
         name = ctx.attr.name,
         actions = ctx.actions,
@@ -61,6 +71,7 @@ def _cc_library(ctx, bison_result):
         cc_toolchain = cc_toolchain,
         compilation_outputs = cc_compilation_outputs,
         linking_contexts = [cc_deps.linking_context],
+        disallow_dynamic_library = not allow_dynamic_library,
     )
 
     outs = []
@@ -141,6 +152,14 @@ for more details.
             doc = """A prefix to strip from the path of the generated header.
 
 See [`cc_library.strip_include_prefix`](https://bazel.build/reference/be/c-cpp#cc_library.strip_include_prefix)
+for more details.
+""",
+        ),
+        "linkstatic": attr.bool(
+            default = False,
+            doc = """Disable creation of a shared library output.
+
+See [`cc_library.linkstatic`](https://bazel.build/reference/be/c-cpp#cc_library.linkstatic)
 for more details.
 """,
         ),
