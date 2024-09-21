@@ -67,7 +67,7 @@ _GNULIB_HDRS = glob([
     "lib/bitset/*.h",
 ])
 
-_GNULIB_SRCS = glob([
+_GNULIB_SRC_GLOBS = [
     "lib/abitset.c",
     "lib/argmatch.c",
     "lib/asnprintf.c",
@@ -118,7 +118,13 @@ _GNULIB_SRCS = glob([
     "lib/xmalloc.c",
     "lib/xmemdup0.c",
     "lib/xstrndup.c",
-])
+]
+
+# Not all of these files exist in every version of Bison's bundled gnulib.
+_GNULIB_SRCS = glob(
+    _GNULIB_SRC_GLOBS,
+    allow_empty = True,
+)
 
 _GNULIB_DARWIN_SRCS = []
 
