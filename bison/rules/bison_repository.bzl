@@ -16,8 +16,8 @@
 
 """Definition of the `bison_repository` repository rule."""
 
-load("//bison/internal:versions.bzl", "VERSION_URLS")
 load("//bison/internal:gnulib/gnulib.bzl", "gnulib_overlay")
+load("//bison/internal:versions.bzl", "VERSION_URLS")
 
 _BISON_LIB_HDRS = [
     "get-errno.c",
