@@ -51,9 +51,35 @@ BISON_SRC_SRCS = glob(
 
 BISON_LIB_SRCS = glob(["bison-lib/*"])
 
+config_setting(
+    name = "cc_compiler_clang",
+    flag_values = {{"@bazel_tools//tools/cpp:compiler": "clang"}},
+    visibility = ["//gnulib:__pkg__"],
+)
+
+config_setting(
+    name = "cc_compiler_gcc",
+    flag_values = {{"@bazel_tools//tools/cpp:compiler": "gcc"}},
+    visibility = ["//gnulib:__pkg__"],
+)
+
+config_setting(
+    name = "cc_compiler_msvc",
+    flag_values = {{"@bazel_tools//tools/cpp:compiler": "msvc-cl"}},
+    visibility = ["//gnulib:__pkg__"],
+)
+
 BISON_COPTS = select({{
-    "@bazel_tools//src/conditions:windows_msvc": [],
-    "//conditions:default": ["-std=c99"],
+    ":cc_compiler_msvc": [
+         # C4116: unnamed type definition in parentheses
+        "/wd4116",
+    ],
+    ":cc_compiler_clang": [
+        "-std=c99",
+        "-Wno-unused-but-set-variable",
+    ],
+    ":cc_compiler_gcc": ["-std=c99"],
+    "//conditions:default": [],
 }})
 
 cc_library(
