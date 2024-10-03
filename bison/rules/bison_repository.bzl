@@ -54,19 +54,19 @@ BISON_LIB_SRCS = glob(["bison-lib/*"])
 config_setting(
     name = "cc_compiler_clang",
     flag_values = {{"@bazel_tools//tools/cpp:compiler": "clang"}},
-    visibility = ["//gnulib:__pkg__"],
+    visibility = ["//:__subpackages__"],
 )
 
 config_setting(
     name = "cc_compiler_gcc",
     flag_values = {{"@bazel_tools//tools/cpp:compiler": "gcc"}},
-    visibility = ["//gnulib:__pkg__"],
+    visibility = ["//:__subpackages__"],
 )
 
 config_setting(
     name = "cc_compiler_msvc",
     flag_values = {{"@bazel_tools//tools/cpp:compiler": "msvc-cl"}},
-    visibility = ["//gnulib:__pkg__"],
+    visibility = ["//:__subpackages__"],
 )
 
 BISON_COPTS = select({{
@@ -112,11 +112,21 @@ filegroup(
         "@rules_m4//m4:current_m4_toolchain",
     ],
 )
+
+BISON_LINKOPTS = select({
+    "//:cc_compiler_msvc": [
+        # LNK4001: no object files specified; libraries used
+        "/IGNORE:4001",
+    ],
+    "//conditions:default": [],
+})
+
 cc_binary(
     name = "bison",
     data = [":bison_runfiles"],
     visibility = ["//visibility:public"],
     deps = ["//:bison_lib"],
+    linkopts = BISON_LINKOPTS,
 )
 """
 
