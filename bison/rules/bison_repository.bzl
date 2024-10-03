@@ -57,6 +57,12 @@ BISON_COPTS = select({{
 }})
 
 cc_library(
+    name = "bison_bazel_runfiles",
+    srcs = ["src/bazel_runfiles.cc"],
+    deps = ["@bazel_tools//tools/cpp/runfiles"],
+)
+
+cc_library(
     name = "bison_lib",
     srcs = BISON_SRC_SRCS + BISON_LIB_SRCS,
     copts = BISON_COPTS + {EXTRA_COPTS},
@@ -65,6 +71,7 @@ cc_library(
     textual_hdrs = BISON_SCANNER_SRCS,
     visibility = ["//bin:__pkg__"],
     deps = [
+        ":bison_bazel_runfiles",
         "//gnulib",
         "//gnulib:config_h",
     ],
@@ -123,6 +130,34 @@ def _bison_repository(ctx):
     for hdr in _BISON_LIB_HDRS:
         ctx.symlink("lib/" + hdr, "bison-lib/" + hdr)
 
+    # Shim in support for locating $BISON_PKGDATADIR and $M4 via
+    # Bazel runfiles if available.
+    ctx.patch(ctx.attr._bazel_runfiles_patch)
+    ctx.template("src/main.c", "src/main.c", substitutions = {
+        "main (int argc, char *argv[])\n{": "\n".join([
+            "main (int argc, char *argv[])\n{",
+            "void bazel_runfiles_init(const char *argv0);",
+            "bazel_runfiles_init(argv[0]);",
+        ]),
+    })
+    ctx.template("src/output.c", "src/output.c", substitutions = {
+        'char const *cp = getenv ("BISON_PKGDATADIR");': "\n".join([
+            "char *bazel_runfiles_bison_pkgdatadir();",
+            "static char *bazel_pkgdatadir_p = NULL;",
+            "if (bazel_pkgdatadir_p == NULL) {",
+            "bazel_pkgdatadir_p = bazel_runfiles_bison_pkgdatadir(); }",
+            "if (bazel_pkgdatadir_p != NULL) { return bazel_pkgdatadir_p; }",
+            'char const *cp = getenv ("BISON_PKGDATADIR");',
+        ]),
+        'char const *m4 = (m4 = getenv ("M4")) ? m4 : M4;': "\n".join([
+            "char *bazel_runfiles_m4();",
+            "static char *bazel_m4_p = NULL;",
+            "if (bazel_m4_p == NULL) {",
+            "bazel_m4_p = bazel_runfiles_m4(); }",
+            'char const *m4 = bazel_m4_p? bazel_m4_p : (m4 = getenv ("M4")) ? m4 : M4;',
+        ]),
+    })
+
 bison_repository = repository_rule(
     implementation = _bison_repository,
     doc = """
@@ -149,6 +184,10 @@ bison_repository(
         ),
         "extra_copts": attr.string_list(
             doc = "Additional C compiler options to use when building GNU Bison.",
+        ),
+        "_bazel_runfiles_patch": attr.label(
+            default = Label("//bison/internal:bazel_runfiles.patch"),
+            allow_single_file = True,
         ),
         "_gnulib_build": attr.label(
             default = Label("//bison/internal:gnulib/gnulib.BUILD"),

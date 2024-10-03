@@ -41,6 +41,7 @@ def _bison_toolchain_info(ctx):
         ctx.executable.bison_tool.path,
         ctx.executable.bison_tool.owner.workspace_name,
     )
+    bison_env["BISON_BAZEL_RUNFILES_M4"] = m4.m4_tool.executable.short_path
     bison_env.update(ctx.attr.bison_env)
 
     toolchain = BisonToolchainInfo(
