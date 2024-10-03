@@ -74,11 +74,29 @@ def _cc_library(ctx, bison_result):
         disallow_dynamic_library = not allow_dynamic_library,
     )
 
+    is_windows = cc_common.is_enabled(
+        feature_configuration = cc_feature_configuration,
+        feature_name = "targets_windows",
+    )
+
     outs = []
-    if cc_linking_outputs.library_to_link.static_library:
-        outs.append(cc_linking_outputs.library_to_link.static_library)
-    if cc_linking_outputs.library_to_link.dynamic_library:
-        outs.append(cc_linking_outputs.library_to_link.dynamic_library)
+    if cc_linking_outputs.library_to_link != None:
+        libs = cc_linking_outputs.library_to_link
+        if libs.static_library != None:
+            outs.append(libs.static_library)
+        if libs.pic_static_library != None:
+            outs.append(libs.pic_static_library)
+
+        if not is_windows:
+            if libs.resolved_symlink_dynamic_library != None:
+                outs.append(libs.resolved_symlink_dynamic_library)
+            elif libs.dynamic_library != None:
+                outs.append(libs.dynamic_library)
+
+            if libs.resolved_symlink_interface_library != None:
+                outs.append(libs.resolved_symlink_interface_library)
+            elif libs.interface_library != None:
+                outs.append(libs.interface_library)
 
     return struct(
         outs = depset(direct = outs),
