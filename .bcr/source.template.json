@@ -1,0 +1,4 @@
+{
+  "url": "https://github.com/{OWNER}/{REPO}/releases/download/v{VERSION}/{REPO}-v{VERSION}.tar.xz",
+  "integrity": ""
+}

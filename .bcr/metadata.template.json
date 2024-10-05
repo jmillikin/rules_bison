@@ -1,0 +1,15 @@
+{
+  "homepage": "https://github.com/jmillikin/rules_bison",
+  "maintainers": [
+    {
+      "name": "John Millikin",
+      "email": "john@john-millikin.com",
+      "github": "jmillikin"
+    }
+  ],
+  "repository": [
+    "github:jmillikin/rules_bison"
+  ],
+  "versions": [],
+  "yanked_versions": {}
+}
