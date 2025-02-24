@@ -27,16 +27,16 @@ tasks:
     test_targets:
       - "//..."
       - "//tests:all_versions"
-  ubuntu_1804_gcc:
-    platform: ubuntu1804
+  ubuntu_2204_gcc:
+    platform: ubuntu2204
     environment:
       CC: gcc
     build_targets: ["//..."]
     test_targets:
       - "//..."
       - "//tests:all_versions"
-  ubuntu_1804_clang:
-    platform: ubuntu1804
+  ubuntu_2204_clang:
+    platform: ubuntu2204
     environment:
       CC: clang
     build_targets: ["//..."]
@@ -56,6 +56,6 @@ tasks:
       - "//..."
       - "//tests:all_versions"
   check_docs_match_stardoc:
-    platform: ubuntu1804
+    platform: ubuntu2204
     test_targets:
       - "//tests:docs_test"
