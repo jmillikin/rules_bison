@@ -49,6 +49,11 @@ class RulesBison : public ::testing::Test {
         string test_workspace(test_workspace_ptr);
 
         size_t slash = test_binary.find_last_of('/');
+#ifdef _WIN32
+        if (slash == string::npos) {
+            slash = test_binary.find_last_of('\\');
+        }
+#endif
         if (slash == string::npos) {
             EXPECT_NE(slash, string::npos);
             return "";
