@@ -11,7 +11,7 @@ Bazel rules for GNU Bison.
 <pre>
 load("@rules_bison//bison:bison.bzl", "bison")
 
-bison(<a href="#bison-name">name</a>, <a href="#bison-src">src</a>, <a href="#bison-bison_options">bison_options</a>, <a href="#bison-skeleton">skeleton</a>)
+bison(<a href="#bison-name">name</a>, <a href="#bison-src">src</a>, <a href="#bison-bison_options">bison_options</a>, <a href="#bison-language">language</a>, <a href="#bison-skeleton">skeleton</a>)
 </pre>
 
 Generate source code for a Bison parser.
@@ -37,8 +37,9 @@ bison(
 | Name  | Description | Type | Mandatory | Default |
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="bison-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
-| <a id="bison-src"></a>src |  A Bison source file.<br><br>The source's file extension will determine whether Bison operates in C or C++ mode:<ul> <li>Inputs with file extension `.y` generate outputs `{name}.c` and `{name}.h`. </li><li>Inputs with file extension `.yy`, `.y++`, `.yxx`, or `.ypp` generate outputs     `{name}.cc` and `{name}.h`. </li>  </ul> | <a href="https://bazel.build/concepts/labels">Label</a> | required |  |
+| <a id="bison-src"></a>src |  A Bison source file.<br><br>Unless `language` is set, the source's file extension determines whether Bison operates in C or C++ mode:<ul> <li>Inputs with file extension `.y` generate outputs `{name}.c` and `{name}.h`. </li><li>Inputs with file extension `.yy`, `.y++`, `.yxx`, or `.ypp` generate outputs     `{name}.cc` and `{name}.h`. </li>  </ul> | <a href="https://bazel.build/concepts/labels">Label</a> | required |  |
 | <a id="bison-bison_options"></a>bison_options |  Additional options to pass to the `bison` command.<br><br>These will be added to the command args immediately before the source file.   | List of strings | optional |  `[]`  |
+| <a id="bison-language"></a>language |  Which language to generate the parser in.   | String | optional |  `""`  |
 | <a id="bison-skeleton"></a>skeleton |  Specify the skeleton to use.<br><br>This file is used as a template for rendering the generated parser. See the Bison documentation regarding the `%skeleton` directive for more details.   | <a href="https://bazel.build/concepts/labels">Label</a> | optional |  `None`  |
 
 
@@ -49,7 +50,7 @@ bison(
 <pre>
 load("@rules_bison//bison:bison.bzl", "bison_cc_library")
 
-bison_cc_library(<a href="#bison_cc_library-name">name</a>, <a href="#bison_cc_library-deps">deps</a>, <a href="#bison_cc_library-src">src</a>, <a href="#bison_cc_library-bison_options">bison_options</a>, <a href="#bison_cc_library-include_prefix">include_prefix</a>, <a href="#bison_cc_library-linkstatic">linkstatic</a>, <a href="#bison_cc_library-skeleton">skeleton</a>,
+bison_cc_library(<a href="#bison_cc_library-name">name</a>, <a href="#bison_cc_library-deps">deps</a>, <a href="#bison_cc_library-src">src</a>, <a href="#bison_cc_library-bison_options">bison_options</a>, <a href="#bison_cc_library-include_prefix">include_prefix</a>, <a href="#bison_cc_library-language">language</a>, <a href="#bison_cc_library-linkstatic">linkstatic</a>, <a href="#bison_cc_library-skeleton">skeleton</a>,
                  <a href="#bison_cc_library-strip_include_prefix">strip_include_prefix</a>)
 </pre>
 
@@ -81,9 +82,10 @@ cc_binary(
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="bison_cc_library-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
 | <a id="bison_cc_library-deps"></a>deps |  A list of other C/C++ libraries to depend on.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
-| <a id="bison_cc_library-src"></a>src |  A Bison source file.<br><br>The source's file extension will determine whether Bison operates in C or C++ mode:<ul> <li>Inputs with file extension `.y` generate outputs `{name}.c` and `{name}.h`. </li><li>Inputs with file extension `.yy`, `.y++`, `.yxx`, or `.ypp` generate outputs     `{name}.cc` and `{name}.h`. </li>  </ul> | <a href="https://bazel.build/concepts/labels">Label</a> | required |  |
+| <a id="bison_cc_library-src"></a>src |  A Bison source file.<br><br>Unless `language` is set, the source's file extension determines whether Bison operates in C or C++ mode:<ul> <li>Inputs with file extension `.y` generate outputs `{name}.c` and `{name}.h`. </li><li>Inputs with file extension `.yy`, `.y++`, `.yxx`, or `.ypp` generate outputs     `{name}.cc` and `{name}.h`. </li>  </ul> | <a href="https://bazel.build/concepts/labels">Label</a> | required |  |
 | <a id="bison_cc_library-bison_options"></a>bison_options |  Additional options to pass to the `bison` command.<br><br>These will be added to the command args immediately before the source file.   | List of strings | optional |  `[]`  |
 | <a id="bison_cc_library-include_prefix"></a>include_prefix |  A prefix to add to the path of the generated header.<br><br>See [`cc_library.include_prefix`](https://bazel.build/reference/be/c-cpp#cc_library.include_prefix) for more details.   | String | optional |  `""`  |
+| <a id="bison_cc_library-language"></a>language |  Which language to generate the parser in.   | String | optional |  `""`  |
 | <a id="bison_cc_library-linkstatic"></a>linkstatic |  Disable creation of a shared library output.<br><br>See [`cc_library.linkstatic`](https://bazel.build/reference/be/c-cpp#cc_library.linkstatic) for more details.   | Boolean | optional |  `False`  |
 | <a id="bison_cc_library-skeleton"></a>skeleton |  Specify the skeleton to use.<br><br>This file is used as a template for rendering the generated parser. See the Bison documentation regarding the `%skeleton` directive for more details.   | <a href="https://bazel.build/concepts/labels">Label</a> | optional |  `None`  |
 | <a id="bison_cc_library-strip_include_prefix"></a>strip_include_prefix |  A prefix to strip from the path of the generated header.<br><br>See [`cc_library.strip_include_prefix`](https://bazel.build/reference/be/c-cpp#cc_library.strip_include_prefix) for more details.   | String | optional |  `""`  |

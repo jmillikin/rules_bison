@@ -107,10 +107,12 @@ def _cc_library(ctx, bison_result):
     )
 
 def _bison_cc_library(ctx):
-    if ctx.file.src.extension == "y":
-        language = "c"
-    else:
-        language = "c++"
+    language = ctx.attr.language
+    if language == "":
+        if ctx.file.src.extension == "y":
+            language = "c"
+        else:
+            language = "c++"
     result = bison_action(ctx, language)
     cc_lib = _cc_library(ctx, result)
     return [
@@ -146,14 +148,18 @@ cc_binary(
         "src": attr.label(
             doc = """A Bison source file.
 
-The source's file extension will determine whether Bison operates in C or C++
-mode:
+Unless `language` is set, the source's file extension determines whether
+Bison operates in C or C++ mode:
   - Inputs with file extension `.y` generate outputs `{name}.c` and `{name}.h`.
   - Inputs with file extension `.yy`, `.y++`, `.yxx`, or `.ypp` generate outputs
     `{name}.cc` and `{name}.h`.
 """,
             mandatory = True,
             allow_single_file = [".y", ".yy", ".y++", ".yxx", ".ypp"],
+        ),
+        "language": attr.string(
+            doc = "Which language to generate the parser in.",
+            values = ["c", "c++"],
         ),
         "deps": attr.label_list(
             doc = "A list of other C/C++ libraries to depend on.",
