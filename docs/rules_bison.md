@@ -50,8 +50,8 @@ bison(
 <pre>
 load("@rules_bison//bison:bison.bzl", "bison_cc_library")
 
-bison_cc_library(<a href="#bison_cc_library-name">name</a>, <a href="#bison_cc_library-deps">deps</a>, <a href="#bison_cc_library-src">src</a>, <a href="#bison_cc_library-bison_options">bison_options</a>, <a href="#bison_cc_library-include_prefix">include_prefix</a>, <a href="#bison_cc_library-language">language</a>, <a href="#bison_cc_library-linkstatic">linkstatic</a>, <a href="#bison_cc_library-skeleton">skeleton</a>,
-                 <a href="#bison_cc_library-strip_include_prefix">strip_include_prefix</a>)
+bison_cc_library(<a href="#bison_cc_library-name">name</a>, <a href="#bison_cc_library-deps">deps</a>, <a href="#bison_cc_library-src">src</a>, <a href="#bison_cc_library-bison_options">bison_options</a>, <a href="#bison_cc_library-conlyopts">conlyopts</a>, <a href="#bison_cc_library-copts">copts</a>, <a href="#bison_cc_library-cxxopts">cxxopts</a>, <a href="#bison_cc_library-include_prefix">include_prefix</a>,
+                 <a href="#bison_cc_library-language">language</a>, <a href="#bison_cc_library-linkstatic">linkstatic</a>, <a href="#bison_cc_library-skeleton">skeleton</a>, <a href="#bison_cc_library-strip_include_prefix">strip_include_prefix</a>)
 </pre>
 
 Generate a C/C++ library for a Bison parser.
@@ -84,6 +84,9 @@ cc_binary(
 | <a id="bison_cc_library-deps"></a>deps |  A list of other C/C++ libraries to depend on.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
 | <a id="bison_cc_library-src"></a>src |  A Bison source file.<br><br>Unless `language` is set, the source's file extension determines whether Bison operates in C or C++ mode:<ul> <li>Inputs with file extension `.y` generate outputs `{name}.c` and `{name}.h`. </li><li>Inputs with file extension `.yy`, `.y++`, `.yxx`, or `.ypp` generate outputs     `{name}.cc` and `{name}.h`. </li>  </ul> | <a href="https://bazel.build/concepts/labels">Label</a> | required |  |
 | <a id="bison_cc_library-bison_options"></a>bison_options |  Additional options to pass to the `bison` command.<br><br>These will be added to the command args immediately before the source file.   | List of strings | optional |  `[]`  |
+| <a id="bison_cc_library-conlyopts"></a>conlyopts |  Add these options to the C compilation command.<br><br>See [`cc_library.conlyopts`](https://bazel.build/reference/be/c-cpp#cc_library.conlyopts) for more details.   | List of strings | optional |  `[]`  |
+| <a id="bison_cc_library-copts"></a>copts |  Add these options to the C/C++ compilation command.<br><br>See [`cc_library.copts`](https://bazel.build/reference/be/c-cpp#cc_library.copts) for more details.   | List of strings | optional |  `[]`  |
+| <a id="bison_cc_library-cxxopts"></a>cxxopts |  Add these options to the C++ compilation command.<br><br>See [`cc_library.cxxopts`](https://bazel.build/reference/be/c-cpp#cc_library.cxxopts) for more details.   | List of strings | optional |  `[]`  |
 | <a id="bison_cc_library-include_prefix"></a>include_prefix |  A prefix to add to the path of the generated header.<br><br>See [`cc_library.include_prefix`](https://bazel.build/reference/be/c-cpp#cc_library.include_prefix) for more details.   | String | optional |  `""`  |
 | <a id="bison_cc_library-language"></a>language |  Which language to generate the parser in.   | String | optional |  `""`  |
 | <a id="bison_cc_library-linkstatic"></a>linkstatic |  Disable creation of a shared library output.<br><br>See [`cc_library.linkstatic`](https://bazel.build/reference/be/c-cpp#cc_library.linkstatic) for more details.   | Boolean | optional |  `False`  |

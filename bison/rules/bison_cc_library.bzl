@@ -23,7 +23,7 @@ load(
     "bison_action_attrs",
 )
 
-def _cc_library(ctx, bison_result):
+def _cc_library(ctx, language, bison_result):
     cc_toolchain = ctx.attr._cc_toolchain[cc_common.CcToolchainInfo]
 
     cc_deps = cc_common.merge_cc_infos(cc_infos = [
@@ -43,6 +43,12 @@ def _cc_library(ctx, bison_result):
     if ctx.attr.strip_include_prefix:
         compile_kwargs["strip_include_prefix"] = ctx.attr.strip_include_prefix
 
+    copts = list(ctx.attr.copts)
+    if language == "c":
+        copts.extend(ctx.attr.conlyopts)
+    else:
+        copts.extend(ctx.attr.cxxopts)
+
     (cc_compilation_context, cc_compilation_outputs) = cc_common.compile(
         name = ctx.attr.name,
         actions = ctx.actions,
@@ -51,6 +57,7 @@ def _cc_library(ctx, bison_result):
         srcs = [bison_result.source],
         public_hdrs = [bison_result.header],
         compilation_contexts = [cc_deps.compilation_context],
+        user_compile_flags = copts,
         **compile_kwargs
     )
 
@@ -114,7 +121,7 @@ def _bison_cc_library(ctx):
         else:
             language = "c++"
     result = bison_action(ctx, language)
-    cc_lib = _cc_library(ctx, result)
+    cc_lib = _cc_library(ctx, language, result)
     return [
         DefaultInfo(files = cc_lib.outs),
         cc_lib.cc_info,
@@ -164,6 +171,27 @@ Bison operates in C or C++ mode:
         "deps": attr.label_list(
             doc = "A list of other C/C++ libraries to depend on.",
             providers = [CcInfo],
+        ),
+        "copts": attr.string_list(
+            doc = """Add these options to the C/C++ compilation command.
+
+See [`cc_library.copts`](https://bazel.build/reference/be/c-cpp#cc_library.copts)
+for more details.
+""",
+        ),
+        "conlyopts": attr.string_list(
+            doc = """Add these options to the C compilation command.
+
+See [`cc_library.conlyopts`](https://bazel.build/reference/be/c-cpp#cc_library.conlyopts)
+for more details.
+""",
+        ),
+        "cxxopts": attr.string_list(
+            doc = """Add these options to the C++ compilation command.
+
+See [`cc_library.cxxopts`](https://bazel.build/reference/be/c-cpp#cc_library.cxxopts)
+for more details.
+""",
         ),
         "include_prefix": attr.string(
             doc = """A prefix to add to the path of the generated header.
