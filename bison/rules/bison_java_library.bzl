@@ -16,6 +16,8 @@
 
 """Definition of the `bison_java_library` build rule."""
 
+load("@rules_java//java/common:java_common.bzl", "java_common")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load(
     "//bison/internal:bison_action.bzl",
     "BISON_ACTION_TOOLCHAINS",

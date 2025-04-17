@@ -16,6 +16,8 @@
 
 """Definition of the `bison_cc_library` build rule."""
 
+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
+load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load(
     "//bison/internal:bison_action.bzl",
     "BISON_ACTION_TOOLCHAINS",

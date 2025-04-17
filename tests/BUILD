@@ -1,3 +1,8 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+load("@rules_java//java:java_binary.bzl", "java_binary")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load(
     "//bison:bison.bzl",
     "bison_cc_library",
