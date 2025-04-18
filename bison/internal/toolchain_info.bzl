@@ -64,7 +64,7 @@ bison_toolchain_info = rule(
         "bison_tool": attr.label(
             mandatory = True,
             executable = True,
-            cfg = "host",
+            cfg = "exec",
         ),
         "bison_env": attr.string_dict(),
     },

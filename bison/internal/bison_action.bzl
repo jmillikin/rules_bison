@@ -54,7 +54,7 @@ Bison documentation regarding the `%skeleton` directive for more details.
     "_m4_deny_shell": attr.label(
         executable = True,
         default = "//bison/internal:m4_deny_shell",
-        cfg = "host",
+        cfg = "exec",
     ),
 }
 
