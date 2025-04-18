@@ -20,6 +20,13 @@ This rule exists for special cases where the build needs to perform further
 modification of the generated `.c` / `.h` before compilation. Most users
 will find the [`bison_cc_library`](#bison_cc_library) rule more convenient.
 
+When generating a C/C++ parser the output groups `cc_srcs` and `cc_hdrs`
+provide access to the generated `{name}.c` / `{name}.cc` source and
+`{name}.h` header.
+
+When generating a Java parser the output group `java_srcs` provides access
+to the generated `{name}.java` source.
+
 ### Example
 
 ```starlark
