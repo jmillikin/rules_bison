@@ -9,8 +9,6 @@ API reference: [docs/rules_bison.md](docs/rules_bison.md)
 
 ## Setup
 
-### As a module dependency (bzlmod)
-
 Add the following to your `MODULE.bazel`:
 
 ```python
@@ -39,34 +37,6 @@ be unique within the scope of that extension. See the [Bazel module extensions]
 documentation for more details.
 
 [Bazel module extensions]: https://bazel.build/external/extension
-
-### As a workspace dependency
-
-```python
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-http_archive(
-    name = "rules_m4",
-    sha256 = "49aafc0d41c9258122b10dd4e705d6d8a42830d271e99ca2d6389506d31515c6",
-    urls = ["https://github.com/jmillikin/rules_m4/releases/download/v0.2.5/rules_m4-v0.2.5.tar.xz"],
-)
-
-load("@rules_m4//m4:m4.bzl", "m4_register_toolchains")
-
-m4_register_toolchains(version = "1.4.18")
-
-http_archive(
-    name = "rules_bison",
-    # Obtain the package checksum from the release page:
-    # https://github.com/jmillikin/rules_bison/releases/tag/v0.3.2
-    sha256 = "",
-    urls = ["https://github.com/jmillikin/rules_bison/releases/download/v0.3.2/rules_bison-v0.3.2.tar.xz"],
-)
-
-load("@rules_bison//bison:bison.bzl", "bison_register_toolchains")
-
-bison_register_toolchains(version = "3.3.2")
-```
 
 ## Examples
 
