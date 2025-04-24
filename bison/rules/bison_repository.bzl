@@ -113,20 +113,20 @@ filegroup(
     ],
 )
 
-BISON_LINKOPTS = select({
+BISON_LINKOPTS = select({{
     "//:cc_compiler_msvc": [
         # LNK4001: no object files specified; libraries used
         "/IGNORE:4001",
     ],
     "//conditions:default": [],
-})
+}})
 
 cc_binary(
     name = "bison",
     data = [":bison_runfiles"],
     visibility = ["//visibility:public"],
     deps = ["//:bison_lib"],
-    linkopts = BISON_LINKOPTS,
+    linkopts = BISON_LINKOPTS + {EXTRA_LINKOPTS},
 )
 """
 
@@ -157,7 +157,9 @@ def _bison_repository(ctx):
         name = repr(ctx.name),
     ))
     ctx.file("BUILD.bazel", _BISON_BUILD.format(EXTRA_COPTS = extra_copts))
-    ctx.file("bin/BUILD.bazel", _BISON_BIN_BUILD)
+    ctx.file("bin/BUILD.bazel", _BISON_BIN_BUILD.format(
+        EXTRA_LINKOPTS = ctx.attr.extra_linkopts,
+    ))
     ctx.file("rules_bison_internal/BUILD.bazel", _RULES_BISON_INTERNAL_BUILD)
 
     # A couple headers in lib/ get included with angle brackets. To avoid
@@ -220,6 +222,9 @@ bison_repository(
         ),
         "extra_copts": attr.string_list(
             doc = "Additional C compiler options to use when building GNU Bison.",
+        ),
+        "extra_linkopts": attr.string_list(
+            doc = "Additional linker options to use when building GNU Bison.",
         ),
         "_bazel_runfiles_patch": attr.label(
             default = Label("//bison/internal:bazel_runfiles.patch"),

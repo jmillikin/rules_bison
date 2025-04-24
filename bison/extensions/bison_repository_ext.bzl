@@ -30,9 +30,13 @@ load(
     "bison_toolchain_repository",
 )
 
-def _bison_repo_name(version, extra_copts):
-    # copts_key = "{:08X}".format(hash(repr(extra_copts)))
-    copts_key = "%X" % (hash(repr(extra_copts)),)
+def _bison_repo_name(version, extra_copts, extra_linkopts):
+    copts_key_str = ""
+    if extra_copts:
+        copts_key_str = repr(extra_copts)
+    if extra_linkopts:
+        copts_key_str = "{}_{}".format(copts_key_str, repr(extra_linkopts))
+    copts_key = "%X" % (hash(copts_key_str),)
     if len(copts_key) < 8:
         copts_key = "00000000"[:8 - len(copts_key)] + copts_key
     return "bison_v{}__cfg{}".format(version, copts_key)
@@ -48,7 +52,11 @@ def _bison_repository_ext(module_ctx):
             if not name:
                 name = "bison_v{}".format(config.version)
 
-            bison_repo_name = _bison_repo_name(config.version, config.extra_copts)
+            bison_repo_name = _bison_repo_name(
+                config.version,
+                config.extra_copts,
+                config.extra_linkopts,
+            )
 
             bison_toolchain_repository(
                 name = name,
@@ -67,6 +75,7 @@ def _bison_repository_ext(module_ctx):
                     name = bison_repo_name,
                     version = config.version,
                     extra_copts = config.extra_copts,
+                    extra_linkopts = config.extra_linkopts,
                 )
 
     return module_ctx.extension_metadata(
@@ -89,6 +98,9 @@ If unset, the repository name will default to `"bison_v{version}"`.
     ),
     "extra_copts": attr.string_list(
         doc = "Additional C compiler options to use when building GNU Bison.",
+    ),
+    "extra_linkopts": attr.string_list(
+        doc = "Additional linker options to use when building GNU Bison.",
     ),
 }
 
