@@ -9,6 +9,7 @@ filegroup(
 
 cc_binary(
     name = "m4_deny_shell",
-    srcs = ["m4_deny_shell.cc"],
+    srcs = ["m4_deny_shell.c"],
+    features = ["-default_link_libs"],
     visibility = ["//visibility:public"],
 )

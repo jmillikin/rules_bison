@@ -16,15 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
 **/
 
-#include <cstdio>
-#include <cstring>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
-static const char* B4_CAT_START = "cat <<'_m4eof'\n";
-static const char* B4_CAT_END = "_m4eof\n";
+static const char B4_CAT_START[] = "cat <<'_m4eof'\n";
+static const char B4_CAT_END[] = "_m4eof\n";
 
 static bool is_b4_cat(int argc, char **argv, char **message) {
-    static const size_t B4_CAT_START_LEN = strlen(B4_CAT_START);
-    static const size_t B4_CAT_END_LEN = strlen(B4_CAT_END);
+    static const size_t B4_CAT_START_LEN = sizeof(B4_CAT_START) - 1;
+    static const size_t B4_CAT_END_LEN = sizeof(B4_CAT_END) - 1;
 
     if (argc != 3) {
         return false;
