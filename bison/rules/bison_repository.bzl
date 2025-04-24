@@ -27,6 +27,8 @@ _BISON_LIB_HDRS = [
 ]
 
 _BISON_BUILD = """
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 filegroup(
     name = "bison_data",
     srcs = glob(["data/**/*"]),
@@ -105,6 +107,8 @@ cc_library(
 """
 
 _BISON_BIN_BUILD = """
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
 filegroup(
     name = "bison_runfiles",
     srcs = [

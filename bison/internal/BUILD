@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
 filegroup(
     name = "bzl_srcs",
     srcs = glob([

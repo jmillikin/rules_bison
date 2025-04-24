@@ -5,7 +5,10 @@ stardoc(
     out = "bison.md",
     header_template = ":header.vm",
     input = "//bison:bison_bzl",
-    deps = ["//bison:bzl_srcs"],
+    deps = [
+        "//bison:bzl_srcs",
+        "@rules_cc//cc/common",
+    ],
 )
 
 stardoc(
