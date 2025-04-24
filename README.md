@@ -12,7 +12,7 @@ API reference: [docs/rules_bison.md](docs/rules_bison.md)
 Add the following to your `MODULE.bazel`:
 
 ```python
-bazel_dep(name = "rules_bison", version = "0.3.2")
+bazel_dep(name = "rules_bison", version = "0.4")
 ```
 
 To specify a version or build with additional C compiler options, use the
