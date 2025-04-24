@@ -58,4 +58,4 @@ tasks:
   check_docs_match_stardoc:
     platform: ubuntu2204
     test_targets:
-      - "//tests:docs_test"
+      - "//tests/docs_test"

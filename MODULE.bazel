@@ -18,6 +18,11 @@ bazel_dep(
     dev_dependency = True,
 )
 bazel_dep(
+    name = "rules_shell",
+    version = "0.4.0",
+    dev_dependency = True,
+)
+bazel_dep(
     name = "stardoc",
     version = "0.8.0",
     dev_dependency = True,

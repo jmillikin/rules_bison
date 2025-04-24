@@ -87,13 +87,3 @@ alias(
     actual = "@rules_bison_testutil//:all_versions",
     tags = ["manual"],
 )
-
-sh_test(
-    name = "docs_test",
-    srcs = ["docs_test.sh"],
-    data = [
-        "//docs",
-        "//tools/stardoc:stardoc_outputs",
-    ],
-    tags = ["manual"],
-)
