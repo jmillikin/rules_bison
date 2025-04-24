@@ -44,6 +44,12 @@ http_archive(
 )
 
 http_archive(
+    name = "rules_java",
+    sha256 = "d31b6c69e479ffa45460b64dc9c7792a431cac721ef8d5219fc9f603fa2ff877",
+    urls = ["https://github.com/bazelbuild/rules_java/releases/download/8.11.0/rules_java-8.11.0.tar.gz"],
+)
+
+http_archive(
     name = "rules_shell",
     sha256 = "3e114424a5c7e4fd43e0133cc6ecdfe54e45ae8affa14fadd839f29901424043",
     strip_prefix = "rules_shell-0.4.0",

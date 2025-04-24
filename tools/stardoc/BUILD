@@ -8,6 +8,7 @@ stardoc(
     deps = [
         "//bison:bzl_srcs",
         "@rules_cc//cc/common",
+        "@rules_java//java/common",
     ],
 )
 
