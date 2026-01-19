@@ -47,7 +47,7 @@ BISON_SCANNER_SRCS = glob(
 )
 
 BISON_SRC_SRCS = glob(
-    ["src/*.c", "src/*.h"],
+    ["src/*.c", "src/*.h", "lib/*.h"],
     exclude = BISON_SCANNER_SRCS,
 )
 
