@@ -377,3 +377,50 @@ register_toolchains("@bison//:toolchain")
 | <a id="bison_repository_ext.repository-version"></a>version |  A supported version of GNU Bison.   | String | optional |  `"3.3.2"`  |
 
 
+
+<a id="bison_toolchains_ext"></a>
+
+## bison_toolchains_ext
+
+<pre>
+bison_toolchains_ext = use_extension("@rules_bison//bison/extensions:bison_toolchains_ext.bzl", "bison_toolchains_ext")
+bison_toolchains_ext.toolchain(<a href="#bison_toolchains_ext.toolchain-name">name</a>, <a href="#bison_toolchains_ext.toolchain-bison_env">bison_env</a>, <a href="#bison_toolchains_ext.toolchain-bison_tool">bison_tool</a>)
+</pre>
+
+Module extension for declaring Bison toolchains with custom target binaries.
+
+The resulting repository will have one subdirectory per named module tag, which
+contains a `:toolchain` target that can be registered with Bazel.
+
+### Example
+
+```starlark
+bison_toolchains = use_extension(
+    "@rules_bison//bison/extensions:bison_toolchains_ext.bzl",
+    "bison_toolchain_ext",
+)
+
+bison_toolchains.toolchain(
+    name = "custom",
+    bison_tool = "//custom_bison:bison",
+)
+use_repo(bison_toolchains, "bison_toolchains")
+register_toolchains("@bison_toolchains//custom:toolchain")
+```
+
+
+**TAG CLASSES**
+
+<a id="bison_toolchains_ext.toolchain"></a>
+
+### toolchain
+
+**Attributes**
+
+| Name  | Description | Type | Mandatory | Default |
+| :------------- | :------------- | :------------- | :------------- | :------------- |
+| <a id="bison_toolchains_ext.toolchain-name"></a>name |  The name of the toolchain repository to create.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
+| <a id="bison_toolchains_ext.toolchain-bison_env"></a>bison_env |  Additional environment variables to set when running `bison_tool`.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: String -> String</a> | optional |  `{}`  |
+| <a id="bison_toolchains_ext.toolchain-bison_tool"></a>bison_tool |  The label of an `bison` executable target.   | <a href="https://bazel.build/concepts/labels">Label</a> | required |  |
+
+
