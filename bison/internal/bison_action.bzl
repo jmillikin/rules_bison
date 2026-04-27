@@ -24,6 +24,9 @@ load(
 
 _M4_TOOLCHAIN_TYPE = "@rules_m4//m4:toolchain_type"
 
+def _m4_toolchain(ctx):
+    return ctx.toolchains[_M4_TOOLCHAIN_TYPE].m4_toolchain
+
 _SRC_EXT = {
     "c": "c",
     "c++": "cc",
@@ -76,6 +79,7 @@ def bison_action(ctx, language):
         header file), `reports` (optional reports), and `outs` (depset of all generated outputs).
     """
     bison = bison_toolchain(ctx)
+    m4 = _m4_toolchain(ctx)
 
     out_src_ext = _SRC_EXT[language]
 
@@ -113,14 +117,21 @@ def bison_action(ctx, language):
     args.add_all(ctx.attr.bison_options)
     args.add(ctx.file.src.path)
 
+    bison_env = dict(bison.bison_env)
+    if "M4" not in bison_env:
+        bison_env["M4"] = m4.m4_tool.executable.path
+
     ctx.actions.run(
         executable = bison.bison_tool,
         arguments = [args],
         inputs = depset(direct = inputs),
-        tools = [ctx.executable._m4_deny_shell],
+        tools = [
+            ctx.executable._m4_deny_shell,
+            m4.m4_tool,
+        ],
         outputs = parser_files + report_files,
         env = dict(
-            bison.bison_env,
+            bison_env,
             M4_SYSCMD_SHELL = ctx.executable._m4_deny_shell.path,
         ),
         mnemonic = "Bison",

@@ -18,36 +18,25 @@
 
 load("//bison:providers.bzl", "BisonToolchainInfo")
 
-_M4_TOOLCHAIN_TYPE = "@rules_m4//m4:toolchain_type"
-
 def _template_vars(toolchain):
     return platform_common.TemplateVariableInfo({
         "BISON": toolchain.bison_tool.executable.path,
     })
 
 def _bison_toolchain_info(ctx):
-    m4 = ctx.toolchains[_M4_TOOLCHAIN_TYPE].m4_toolchain
     bison_runfiles = ctx.attr.bison_tool[DefaultInfo].default_runfiles.files
 
-    bison_env = dict(m4.m4_env)
-    if "M4" not in bison_env:
-        bison_env["M4"] = "{}.runfiles/{}/{}".format(
-            ctx.executable.bison_tool.path,
-            ctx.executable.bison_tool.owner.workspace_name,
-            m4.m4_tool.executable.short_path,
-        )
-
+    bison_env = {}
     bison_env["BISON_PKGDATADIR"] = "{}.runfiles/{}/data".format(
         ctx.executable.bison_tool.path,
         ctx.executable.bison_tool.owner.workspace_name,
     )
-    bison_env["BISON_BAZEL_RUNFILES_M4"] = m4.m4_tool.executable.short_path
     bison_env.update(ctx.attr.bison_env)
 
     toolchain = BisonToolchainInfo(
         all_files = depset(
             direct = [ctx.executable.bison_tool],
-            transitive = [bison_runfiles, m4.all_files],
+            transitive = [bison_runfiles],
         ),
         bison_tool = ctx.attr.bison_tool.files_to_run,
         bison_env = bison_env,
@@ -78,5 +67,4 @@ Provides `ToolchainInfo` and `TemplateVariableInfo` for the Bison toolchain.
         platform_common.ToolchainInfo,
         platform_common.TemplateVariableInfo,
     ],
-    toolchains = [_M4_TOOLCHAIN_TYPE],
 )

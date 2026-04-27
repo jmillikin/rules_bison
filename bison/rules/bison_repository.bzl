@@ -117,7 +117,6 @@ filegroup(
     name = "bison_runfiles",
     srcs = [
         "//:bison_data",
-        "@rules_m4//m4:current_m4_toolchain",
     ],
 )
 
@@ -201,13 +200,6 @@ def _bison_repository(ctx):
             "bazel_pkgdatadir_p = bazel_runfiles_bison_pkgdatadir(); }",
             "if (bazel_pkgdatadir_p != NULL) { return bazel_pkgdatadir_p; }",
             'char const *cp = getenv ("BISON_PKGDATADIR");',
-        ]),
-        'char const *m4 = (m4 = getenv ("M4")) ? m4 : M4;': "\n".join([
-            "char *bazel_runfiles_m4();",
-            "static char *bazel_m4_p = NULL;",
-            "if (bazel_m4_p == NULL) {",
-            "bazel_m4_p = bazel_runfiles_m4(); }",
-            'char const *m4 = bazel_m4_p? bazel_m4_p : (m4 = getenv ("M4")) ? m4 : M4;',
         ]),
     })
 
