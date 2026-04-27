@@ -244,8 +244,7 @@ A [`BisonToolchainInfo`](#BisonToolchainInfo).
 <pre>
 load("@rules_bison//bison:bison.bzl", "bison_repository")
 
-bison_repository(<a href="#bison_repository-name">name</a>, <a href="#bison_repository-extra_copts">extra_copts</a>, <a href="#bison_repository-extra_http_mirrors">extra_http_mirrors</a>, <a href="#bison_repository-extra_linkopts">extra_linkopts</a>, <a href="#bison_repository-http_mirrors">http_mirrors</a>,
-                 <a href="#bison_repository-version">version</a>)
+bison_repository(<a href="#bison_repository-name">name</a>, <a href="#bison_repository-extra_copts">extra_copts</a>, <a href="#bison_repository-extra_http_mirrors">extra_http_mirrors</a>, <a href="#bison_repository-extra_linkopts">extra_linkopts</a>, <a href="#bison_repository-http_mirrors">http_mirrors</a>, <a href="#bison_repository-version">version</a>)
 </pre>
 
 Repository rule for GNU Bison.
