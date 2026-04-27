@@ -47,6 +47,10 @@ load(
     _bison_repository = "bison_repository",
 )
 load(
+    "//bison/rules:bison_toolchain_info.bzl",
+    _bison_toolchain_info = "bison_toolchain_info",
+)
+load(
     "//bison/rules:bison_toolchain_repository.bzl",
     _bison_toolchain_repository = "bison_toolchain_repository",
 )
@@ -57,6 +61,7 @@ bison_cc_library = _bison_cc_library
 bison_java_library = _bison_java_library
 bison_toolchain = _bison_toolchain
 bison_repository = _bison_repository
+bison_toolchain_info = _bison_toolchain_info
 bison_toolchain_repository = _bison_toolchain_repository
 BisonToolchainInfo = _BisonToolchainInfo
 

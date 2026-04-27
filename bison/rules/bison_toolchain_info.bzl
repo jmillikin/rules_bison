@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Bazel toolchain for GNU Bison."""
+"""Definition of the `bison_toolchain_info` rule."""
 
 load("//bison:providers.bzl", "BisonToolchainInfo")
 
@@ -60,13 +60,19 @@ def _bison_toolchain_info(ctx):
 
 bison_toolchain_info = rule(
     _bison_toolchain_info,
+    doc = """
+Provides `ToolchainInfo` and `TemplateVariableInfo` for the Bison toolchain.
+""",
     attrs = {
         "bison_tool": attr.label(
+            doc = "A `FilesToRunProvider` for the `bison` binary.",
             mandatory = True,
             executable = True,
             cfg = "exec",
         ),
-        "bison_env": attr.string_dict(),
+        "bison_env": attr.string_dict(
+            doc = "Additional environment variables to set when running `bison_tool`.",
+        ),
     },
     provides = [
         platform_common.ToolchainInfo,

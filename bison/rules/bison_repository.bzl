@@ -139,7 +139,7 @@ cc_binary(
 """
 
 _RULES_BISON_INTERNAL_BUILD = """
-load("@rules_bison//bison/internal:toolchain_info.bzl", "bison_toolchain_info")
+load("@rules_bison//bison/rules:bison_toolchain_info.bzl", "bison_toolchain_info")
 
 bison_toolchain_info(
     name = "toolchain_info",

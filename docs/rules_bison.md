@@ -145,6 +145,28 @@ java_binary(
 | <a id="bison_java_library-skeleton"></a>skeleton |  Specify the skeleton to use.<br><br>This file is used as a template for rendering the generated parser. See the Bison documentation regarding the `%skeleton` directive for more details.   | <a href="https://bazel.build/concepts/labels">Label</a> | optional |  `None`  |
 
 
+<a id="bison_toolchain_info"></a>
+
+## bison_toolchain_info
+
+<pre>
+load("@rules_bison//bison:bison.bzl", "bison_toolchain_info")
+
+bison_toolchain_info(<a href="#bison_toolchain_info-name">name</a>, <a href="#bison_toolchain_info-bison_env">bison_env</a>, <a href="#bison_toolchain_info-bison_tool">bison_tool</a>)
+</pre>
+
+Provides `ToolchainInfo` and `TemplateVariableInfo` for the Bison toolchain.
+
+**ATTRIBUTES**
+
+
+| Name  | Description | Type | Mandatory | Default |
+| :------------- | :------------- | :------------- | :------------- | :------------- |
+| <a id="bison_toolchain_info-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
+| <a id="bison_toolchain_info-bison_env"></a>bison_env |  Additional environment variables to set when running `bison_tool`.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: String -> String</a> | optional |  `{}`  |
+| <a id="bison_toolchain_info-bison_tool"></a>bison_tool |  A `FilesToRunProvider` for the `bison` binary.   | <a href="https://bazel.build/concepts/labels">Label</a> | required |  |
+
+
 <a id="BisonToolchainInfo"></a>
 
 ## BisonToolchainInfo
