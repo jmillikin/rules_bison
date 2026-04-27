@@ -1,9 +1,10 @@
 matrix:
   bazel: ["7.x", "8.x", "9.x"]
   platform:
-  - centos7
-  - debian10
-  - ubuntu2004
+  - debian13
+  - fedora43
+  - rockylinux8
+  - ubuntu2404
   - macos
   - windows
 tasks:
