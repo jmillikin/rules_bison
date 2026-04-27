@@ -4,8 +4,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_m4",
-    sha256 = "49aafc0d41c9258122b10dd4e705d6d8a42830d271e99ca2d6389506d31515c6",
-    urls = ["https://github.com/jmillikin/rules_m4/releases/download/v0.2.5/rules_m4-v0.2.5.tar.xz"],
+    sha256 = "1d9b9977f67c3e33265dce554446c7d3f0f3cc2c10d7ced2e67a6931cf0a6f4e",
+    urls = ["https://github.com/jmillikin/rules_m4/releases/download/v0.3.1/rules_m4-v0.3.1.tar.xz"],
 )
 
 load("@rules_m4//m4:m4.bzl", "m4_register_toolchains")
