@@ -81,6 +81,7 @@ def _bison_repository_ext(module_ctx):
                 )
 
     return module_ctx.extension_metadata(
+        reproducible = True,
         root_module_direct_deps = root_direct_deps,
         root_module_direct_dev_deps = root_direct_dev_deps,
     )
