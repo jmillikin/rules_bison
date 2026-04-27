@@ -222,7 +222,8 @@ A [`BisonToolchainInfo`](#BisonToolchainInfo).
 <pre>
 load("@rules_bison//bison:bison.bzl", "bison_repository")
 
-bison_repository(<a href="#bison_repository-name">name</a>, <a href="#bison_repository-extra_copts">extra_copts</a>, <a href="#bison_repository-extra_linkopts">extra_linkopts</a>, <a href="#bison_repository-repo_mapping">repo_mapping</a>, <a href="#bison_repository-version">version</a>)
+bison_repository(<a href="#bison_repository-name">name</a>, <a href="#bison_repository-extra_copts">extra_copts</a>, <a href="#bison_repository-extra_http_mirrors">extra_http_mirrors</a>, <a href="#bison_repository-extra_linkopts">extra_linkopts</a>, <a href="#bison_repository-http_mirrors">http_mirrors</a>,
+                 <a href="#bison_repository-version">version</a>)
 </pre>
 
 Repository rule for GNU Bison.
@@ -247,8 +248,9 @@ bison_repository(
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="bison_repository-name"></a>name |  A unique name for this repository.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
 | <a id="bison_repository-extra_copts"></a>extra_copts |  Additional C compiler options to use when building GNU Bison.   | List of strings | optional |  `[]`  |
+| <a id="bison_repository-extra_http_mirrors"></a>extra_http_mirrors |  Additional HTTP mirrors of the GNU Bison source archives.<br><br>These mirrors will be appended to the list of default GNU mirrors.   | List of strings | optional |  `[]`  |
 | <a id="bison_repository-extra_linkopts"></a>extra_linkopts |  Additional linker options to use when building GNU Bison.   | List of strings | optional |  `[]`  |
-| <a id="bison_repository-repo_mapping"></a>repo_mapping |  In `WORKSPACE` context only: a dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<br><br>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).<br><br>This attribute is _not_ supported in `MODULE.bazel` context (when invoking a repository rule inside a module extension's implementation function).   | <a href="https://bazel.build/rules/lib/dict">Dictionary: String -> String</a> | optional |  |
+| <a id="bison_repository-http_mirrors"></a>http_mirrors |  If set then this value will be used instead of the default HTTP mirror list.<br><br>The `extra_http_mirrors` attribute will be appended to this list.   | List of strings | optional |  `[]`  |
 | <a id="bison_repository-version"></a>version |  A supported version of GNU Bison.   | String | required |  |
 
 
@@ -259,7 +261,7 @@ bison_repository(
 <pre>
 load("@rules_bison//bison:bison.bzl", "bison_toolchain_repository")
 
-bison_toolchain_repository(<a href="#bison_toolchain_repository-name">name</a>, <a href="#bison_toolchain_repository-bison_repository">bison_repository</a>, <a href="#bison_toolchain_repository-repo_mapping">repo_mapping</a>)
+bison_toolchain_repository(<a href="#bison_toolchain_repository-name">name</a>, <a href="#bison_toolchain_repository-bison_repository">bison_repository</a>)
 </pre>
 
 Toolchain repository rule for Bison toolchains.
@@ -301,7 +303,6 @@ register_toolchains("@bison//:toolchain")
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="bison_toolchain_repository-name"></a>name |  A unique name for this repository.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
 | <a id="bison_toolchain_repository-bison_repository"></a>bison_repository |  The name of a [`bison_repository`](#bison_repository).   | String | required |  |
-| <a id="bison_toolchain_repository-repo_mapping"></a>repo_mapping |  In `WORKSPACE` context only: a dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<br><br>For example, an entry `"@foo": "@bar"` declares that, for any time this repository depends on `@foo` (such as a dependency on `@foo//some:target`, it should actually resolve that dependency within globally-declared `@bar` (`@bar//some:target`).<br><br>This attribute is _not_ supported in `MODULE.bazel` context (when invoking a repository rule inside a module extension's implementation function).   | <a href="https://bazel.build/rules/lib/dict">Dictionary: String -> String</a> | optional |  |
 
 
 
@@ -311,7 +312,8 @@ register_toolchains("@bison//:toolchain")
 
 <pre>
 bison_repository_ext = use_extension("@rules_bison//bison/extensions:bison_repository_ext.bzl", "bison_repository_ext")
-bison_repository_ext.repository(<a href="#bison_repository_ext.repository-name">name</a>, <a href="#bison_repository_ext.repository-extra_copts">extra_copts</a>, <a href="#bison_repository_ext.repository-extra_linkopts">extra_linkopts</a>, <a href="#bison_repository_ext.repository-version">version</a>)
+bison_repository_ext.repository(<a href="#bison_repository_ext.repository-name">name</a>, <a href="#bison_repository_ext.repository-extra_copts">extra_copts</a>, <a href="#bison_repository_ext.repository-extra_http_mirrors">extra_http_mirrors</a>, <a href="#bison_repository_ext.repository-extra_linkopts">extra_linkopts</a>, <a href="#bison_repository_ext.repository-http_mirrors">http_mirrors</a>,
+                                <a href="#bison_repository_ext.repository-version">version</a>)
 </pre>
 
 Module extension for declaring dependencies on GNU Bison.
@@ -347,7 +349,9 @@ register_toolchains("@bison//:toolchain")
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="bison_repository_ext.repository-name"></a>name |  An optional name for the repository.<br><br>The name must be unique within the set of names registered by this extension. If unset, the repository name will default to `"bison_v{version}"`.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | optional |  `""`  |
 | <a id="bison_repository_ext.repository-extra_copts"></a>extra_copts |  Additional C compiler options to use when building GNU Bison.   | List of strings | optional |  `[]`  |
+| <a id="bison_repository_ext.repository-extra_http_mirrors"></a>extra_http_mirrors |  Additional HTTP mirrors of the GNU Bison source archives.<br><br>These mirrors will be appended to the list of default GNU mirrors.   | List of strings | optional |  `[]`  |
 | <a id="bison_repository_ext.repository-extra_linkopts"></a>extra_linkopts |  Additional linker options to use when building GNU Bison.   | List of strings | optional |  `[]`  |
+| <a id="bison_repository_ext.repository-http_mirrors"></a>http_mirrors |  If set then this value will be used instead of the default HTTP mirror list.<br><br>The `extra_http_mirrors` attribute will be appended to this list.   | List of strings | optional |  `[]`  |
 | <a id="bison_repository_ext.repository-version"></a>version |  A supported version of GNU Bison.   | String | optional |  `"3.3.2"`  |
 
 

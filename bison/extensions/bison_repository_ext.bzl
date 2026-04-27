@@ -76,6 +76,8 @@ def _bison_repository_ext(module_ctx):
                     version = config.version,
                     extra_copts = config.extra_copts,
                     extra_linkopts = config.extra_linkopts,
+                    extra_http_mirrors = config.extra_http_mirrors,
+                    http_mirrors = config.http_mirrors,
                 )
 
     return module_ctx.extension_metadata(
@@ -101,6 +103,20 @@ If unset, the repository name will default to `"bison_v{version}"`.
     ),
     "extra_linkopts": attr.string_list(
         doc = "Additional linker options to use when building GNU Bison.",
+    ),
+    "extra_http_mirrors": attr.string_list(
+        doc = """
+Additional HTTP mirrors of the GNU Bison source archives.
+
+These mirrors will be appended to the list of default GNU mirrors.
+""",
+    ),
+    "http_mirrors": attr.string_list(
+        doc = """
+If set then this value will be used instead of the default HTTP mirror list.
+
+The `extra_http_mirrors` attribute will be appended to this list.
+""",
     ),
 }
 

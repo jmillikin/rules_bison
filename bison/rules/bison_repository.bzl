@@ -17,7 +17,11 @@
 """Definition of the `bison_repository` repository rule."""
 
 load("//bison/internal:gnulib/gnulib.bzl", "gnulib_overlay")
-load("//bison/internal:versions.bzl", "VERSION_URLS")
+load(
+    "//bison/internal:versions.bzl",
+    "VERSION_URLS",
+    "custom_version_urls",
+)
 
 _BISON_LIB_HDRS = [
     "get-errno.c",
@@ -147,7 +151,14 @@ bison_toolchain_info(
 def _bison_repository(ctx):
     version = ctx.attr.version
     extra_copts = ctx.attr.extra_copts
-    source = VERSION_URLS[version]
+
+    version_urls = VERSION_URLS
+    if ctx.attr.http_mirrors or ctx.attr.extra_http_mirrors:
+        version_urls = custom_version_urls(
+            ctx.attr.http_mirrors,
+            ctx.attr.extra_http_mirrors,
+        )
+    source = version_urls[version]
 
     ctx.download_and_extract(
         url = source["urls"],
@@ -229,6 +240,20 @@ bison_repository(
         ),
         "extra_linkopts": attr.string_list(
             doc = "Additional linker options to use when building GNU Bison.",
+        ),
+        "extra_http_mirrors": attr.string_list(
+            doc = """
+Additional HTTP mirrors of the GNU Bison source archives.
+
+These mirrors will be appended to the list of default GNU mirrors.
+""",
+        ),
+        "http_mirrors": attr.string_list(
+            doc = """
+If set then this value will be used instead of the default HTTP mirror list.
+
+The `extra_http_mirrors` attribute will be appended to this list.
+""",
         ),
         "_bazel_runfiles_patch": attr.label(
             default = Label("//bison/internal:bazel_runfiles.patch"),
