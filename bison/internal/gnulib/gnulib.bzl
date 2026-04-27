@@ -58,6 +58,16 @@ _CONFIGMAKE_H = """
 #define PKGDATADIR "{WORKSPACE_ROOT}/data"
 """
 
+def _copyright_year(ctx):
+    prefix = "AC_SUBST([PACKAGE_COPYRIGHT_YEAR],"
+    config_ac = ctx.read("configure.ac")
+    for line in config_ac.split("\n"):
+        if line.startswith(prefix):
+            # AC_SUBST([PACKAGE_COPYRIGHT_YEAR], [2018])
+            year = line.replace(prefix, "").replace(")", "")
+            return json.decode(year)[0]
+    return 9999
+
 def gnulib_overlay(ctx, bison_version, extra_copts = []):
     """Download the gnulib overlay and apply compatibility patches.
 
@@ -79,7 +89,7 @@ def gnulib_overlay(ctx, bison_version, extra_copts = []):
 
     config_header = _CONFIG_HEADER.format(
         BISON_VERSION = bison_version,
-        BISON_COPYRIGHT_YEAR = VERSION_URLS[bison_version]["copyright_year"],
+        BISON_COPYRIGHT_YEAR = _copyright_year(ctx),
     )
 
     for (os, template) in [
