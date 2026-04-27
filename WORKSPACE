@@ -30,10 +30,10 @@ bison_register_toolchains()
 ) for version in VERSION_URLS]
 
 http_archive(
-    name = "com_google_googletest",
-    sha256 = "81964fe578e9bd7c94dfdb09c8e4d6e6759e19967e397dbea48d1c10e45d0df2",
+    name = "googletest",
+    sha256 = "65fab701d9829d38cb77c14acdc431d2108bfdbf8979e40eb8ae567edf10b27c",
     strip_prefix = "googletest-release-1.12.1",
-    urls = ["https://github.com/google/googletest/archive/release-1.12.1.tar.gz"],
+    urls = ["https://github.com/google/googletest/releases/download/v1.17.0/googletest-1.17.0.tar.gz"],
 )
 
 http_archive(
